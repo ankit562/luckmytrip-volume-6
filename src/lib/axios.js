@@ -3,7 +3,7 @@ import store from "../store/store";
 import { logoutUser } from "../features/auth/authUserSlice";
 
 const getBaseURL = () => {
-  return "http://localhost:5000/api/v1";
+  return "https://luckmytrip-backend-volume-6.onrender.com/api/v1";
 };
 
 const instance = axios.create({
