@@ -1,0 +1,123 @@
+
+ @import "tailwindcss";
+
+@font-face {
+  font-family: 'Berlin Sans FB Demi';
+  src: url('./components/assets/fonts/berlin-sans-fb-demi/BRLNSDB.TTF') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./components/assets/fonts/Montserrat/static/Montserrat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./components/assets/fonts/Montserrat/static/Montserrat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./components/assets/fonts/Montserrat/static/Montserrat-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+
+
+
+@layer base {
+  body {
+    font-family: 'Montserrat', sans-serif;
+  }
+}
+
+.text-stroke-red {
+  -webkit-text-stroke: 2px #ff446c;
+  color: #ff446c;
+}
+
+.font-outline-red {
+  -webkit-text-stroke: 1px #ef4444;
+  color: transparent;
+}
+
+.font-outline-win {
+  -webkit-text-stroke: 2px #FF1744;
+  color: transparent;
+  text-shadow: 2px 2px 0px rgba(255, 23, 68, 0.1);
+}
+
+
+
+.hero-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  height: 450px;
+  background-image: url(/images/beautifulview.jpg);
+  background-size: cover;
+  background-position: top;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+.hero-text {
+  color: white;
+  max-width: 50%;
+  z-index: 2;
+}
+
+.lady-image {
+  position: absolute;
+  right: 0;
+  top: -190px;
+  height: 40rem;
+  /* max-height: 100%; */
+  z-index: 1;
+}
+@media(max-width:768px) {
+  .hero-container {
+    height: 328px;
+    justify-content: normal;
+    align-items: center;
+  }
+
+  .hero-text {
+  margin-left: 0px;
+  color: white;
+  max-width: 70%;
+  z-index: 2;
+}
+  .lady-image {
+    position: absolute;
+    right: 0;
+    top: -120px;
+    height: 28rem;
+    z-index: 1;
+  }
+  .jackpot-img {
+    max-width: 400px;
+  }
+}
+@media (max-width: 480px) {
+  .hero-container {
+      height: 300px;
+      justify-content: end;
+      align-items: flex-start;
+  }
+  .lady-image {
+	    top: -100px;
+      height: 25rem;
+  }
+}
+
+
