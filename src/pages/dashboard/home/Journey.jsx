@@ -1,27 +1,8 @@
-import {
-  Home,
-  Search,
-  ShoppingCart,
-  Bell,
-  User,
-  ChevronDown,
-  LogOut,
-  Users,
-  FileText,
-  Settings,
-  BarChart3,
-  MenuIcon,
-  Plus,
-} from "lucide-react";
-import React, { useState } from "react";
+ import React, { useState, useEffect } from "react";
 import Header from "../../../components/dashboardComponent/Header";
 import LeftsideNavbar from "../../../components/dashboardComponent/LeftsideNavbar";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import { useSelector, useDispatch } from 'react-redux';
-import { useEffect } from 'react';
-import { fetchProfile } from '../../../features/auth/authUserSlice';
- 
-import { fetchTickets, createTicket, editTicket, removeTicket } from '../../../features/tickets/ticketSlice'; // adjust import path
+import { fetchTickets, createTicket, editTicket, removeTicket } from '../../../features/tickets/ticketSlice';
 
 function CreateContentForm({ onCancel, onSubmit, initialData }) {
   const [form, setForm] = useState({
@@ -35,29 +16,27 @@ function CreateContentForm({ onCancel, onSubmit, initialData }) {
     status: initialData?.status || "publish"
   });
 
-const handleChange = (e) => {
-  const { name, value, files, type } = e.target;
-  setForm((prev) =>
-    type === "file" ? { ...prev, [name]: files[0] } : { ...prev, [name]: value }
-  );
-};
+  const handleChange = (e) => {
+    const { name, value, files, type } = e.target;
+    setForm((prev) =>
+      type === "file" ? { ...prev, [name]: files[0] } : { ...prev, [name]: value }
+    );
+  };
 
-const handleSubmit = (e) => {
-  
-  e.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  const formData = new FormData();
-  for (const key in form) {
-    if (key === "image" && form.image instanceof File) {
-      formData.append("image", form.image);
-    } else {
-      formData.append(key, form[key]);
+    const formData = new FormData();
+    for (const key in form) {
+      if (key === "image" && form.image instanceof File) {
+        formData.append("image", form.image);
+      } else {
+        formData.append(key, form[key]);
+      }
     }
-  }
-  
-  onSubmit(formData);
-};
-
+    
+    onSubmit(formData);
+  };
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit}>
@@ -113,7 +92,7 @@ const handleSubmit = (e) => {
         accept="image/*"
         onChange={handleChange}
         className="w-full"
-        required={!initialData} // require if creating new, optional if editing
+        required={!initialData}
       />
       <div className="flex justify-end gap-3">
         <button
@@ -137,9 +116,8 @@ const handleSubmit = (e) => {
 export default function Journey() {
   const dispatch = useDispatch();
 
-const { tickets = [], loading, } = useSelector(state => state.tickets || {});
- const { user, isInitialized } = useSelector(state => state.auth);
- 
+  const { tickets = [], loading } = useSelector(state => state.tickets || {});
+  const { user } = useSelector(state => state.auth);
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalData, setEditModalData] = useState(null);
@@ -147,9 +125,7 @@ const { tickets = [], loading, } = useSelector(state => state.tickets || {});
 
   useEffect(() => {
     dispatch(fetchTickets());
-    
   }, [dispatch]);
-
 
   const openCreateModal = () => setCreateModalOpen(true);
   const closeCreateModal = () => setCreateModalOpen(false);
@@ -158,7 +134,6 @@ const { tickets = [], loading, } = useSelector(state => state.tickets || {});
   const openDeleteModal = (content) => setDeleteModalData(content);
   const closeDeleteModal = () => setDeleteModalData(null);
 
-  // Add content handler
   const handleCreateSubmit = async (formData) => {
     try {
       await dispatch(createTicket(formData)).unwrap();
@@ -168,7 +143,6 @@ const { tickets = [], loading, } = useSelector(state => state.tickets || {});
     }
   };
 
-  // Edit content handler
   const handleEditSubmit = async (formData) => {
     try {
       await dispatch(editTicket({ id: editModalData._id, formData })).unwrap();
@@ -178,7 +152,6 @@ const { tickets = [], loading, } = useSelector(state => state.tickets || {});
     }
   };
 
-  // Delete content handler
   const handleDeleteConfirm = async () => {
     try {
       await dispatch(removeTicket(deleteModalData._id)).unwrap();
@@ -188,106 +161,107 @@ const { tickets = [], loading, } = useSelector(state => state.tickets || {});
     }
   };
 
-
   return (
     <div className="min-h-screen bg-blue-50 flex flex-col">
       <Header />
-     
+      
       <div className="flex flex-1 min-h-0">
-        
         <LeftsideNavbar user={user} />
 
         <main className="flex flex-col md:px-10 px-4 py-8 bg-blue-50 min-h-0 w-full">
-          <h1 className=" text-2xl md:text-4xl font-bold text-black mb-6">Journey</h1>
-              <section className="p-6 m-6 bg-white rounded-xl shadow">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className=" text-base md:text-2xl font-semibold">Trip Details</h2>
-        <button
-          onClick={openCreateModal}
-          className="bg-purple-600 hover:bg-purple-700 text-white  text-xs md:text-lg font-medium md:px-6 md:py-2 px-3 py-1 rounded-lg transition"
-        >
-          Create New Content
-        </button>
-      </div>
-
-      {loading ? (
-        <p>Loading contents...</p>
-      ) : tickets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[250px]">
-          <span className="text-6xl mb-3" role="img" aria-label="file">📝</span>
-          <p className="text-lg text-gray-600 mb-4 text-center">
-            You haven't created any content yet
-          </p>
-          <button
-            onClick={openCreateModal}
-            className="bg-purple-600 hover:bg-purple-700 text-white  px-3 py-2 :md:px-6 md:py-2 rounded-lg  text-sm md:text-base font-semibold"
-          >
-            Create Your First Content
-          </button>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 rounded overflow-hidden">
-            <thead className="bg-gray-100">
-              <tr>
-                {["Trip", "Tickets", "Price", "Description", "Image", "Draw-Date", "Edit" , "Delete"].map(col => (
-                  <th key={col} className="text-left p-3 border-b border-gray-300 whitespace-nowrap">{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map(({ _id, name, ticket, price, description, image, date, }) => (
-                <tr key={_id} className="hover:bg-gray-50">
-                  <td className="p-3 border-b border-gray-300">{name}</td>
-                  <td className="p-3 border-b border-gray-300">{ticket}</td>
-                  <td className="p-3 border-b border-gray-300">₹{price}</td>
-                  <td className="p-3 border-b border-gray-300 max-w-xs truncate" title={description}>{description}</td>
-                  <td className="p-3 border-b border-gray-300">
-                    {image ? (
-                      <img src={image} alt="banner" className="h-12 w-20 object-cover rounded" />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="p-3 border-b border-gray-300">{new Date(date).toLocaleDateString()}</td>
-                  <td className="p-3 border-b border-gray-300">
-                    <button onClick={() => openEditModal(tickets.find(c => c._id === _id))} className="text-blue-600 ">Edit</button>
-                  </td>
-                  <td className="p-3 border-b border-gray-300">
-                     <button onClick={() => openDeleteModal(tickets.find(c => c._id === _id))} className="text-red-600 ">Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {createModalOpen && (
-        <Modal onClose={closeCreateModal}>
-          <CreateContentForm onSubmit={handleCreateSubmit} onCancel={closeCreateModal} />
-        </Modal>
-      )}
-
-      {editModalData && (
-        <Modal onClose={closeEditModal}>
-          <CreateContentForm initialData={editModalData} onSubmit={handleEditSubmit} onCancel={closeEditModal} />
-        </Modal>
-      )}
-
-      {deleteModalData && (
-        <Modal onClose={closeDeleteModal}>
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Confirm Delete</h3>
-            <p>Are you sure you want to delete "{deleteModalData.title}"?</p>
-            <div className="mt-6 flex justify-end gap-4">
-              <button onClick={closeDeleteModal} className="px-4 py-2 rounded border hover:bg-gray-100">Cancel</button>
-              <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Delete</button>
+          <h1 className="text-2xl md:text-4xl font-bold text-black mb-6">Journey</h1>
+          <section className="p-6 m-6 bg-white rounded-xl shadow">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-base md:text-2xl font-semibold">Trip Details</h2>
+              <button
+                onClick={openCreateModal}
+                className="bg-purple-600 hover:bg-purple-700 text-white text-xs md:text-lg font-medium md:px-6 md:py-2 px-3 py-1 rounded-lg transition"
+              >
+                Create New Content
+              </button>
             </div>
-          </div>
-        </Modal>
-      )}
-    </section>
+
+            {loading ? (
+              <p>Loading contents...</p>
+            ) : tickets.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[250px]">
+                <span className="text-6xl mb-3" role="img" aria-label="file">📝</span>
+                <p className="text-lg text-gray-600 mb-4 text-center">
+                  You haven't created any content yet
+                </p>
+                <button
+                  onClick={openCreateModal}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 md:px-6 md:py-2 rounded-lg text-sm md:text-base font-semibold"
+                >
+                  Create Your First Content
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full border border-gray-300 rounded overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      {["Trip", "Tickets", "Price", "Description", "Image", "Draw-Date", "Edit", "Delete"].map(col => (
+                        <th key={col} className="text-left p-3 border-b border-gray-300 whitespace-nowrap">{col}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tickets.map((ticketItem) => {
+                      const { _id, name, ticket, price, description, image, date } = ticketItem;
+                      return (
+                        <tr key={_id} className="hover:bg-gray-50">
+                          <td className="p-3 border-b border-gray-300">{name}</td>
+                          <td className="p-3 border-b border-gray-300">{ticket}</td>
+                          <td className="p-3 border-b border-gray-300">₹{price}</td>
+                          <td className="p-3 border-b border-gray-300 max-w-xs truncate" title={description}>{description}</td>
+                          <td className="p-3 border-b border-gray-300">
+                            {image ? (
+                              <img src={image} alt="banner" className="h-12 w-20 object-cover rounded" />
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td className="p-3 border-b border-gray-300">{date ? new Date(date).toLocaleDateString() : "-"}</td>
+                          <td className="p-3 border-b border-gray-300">
+                            <button onClick={() => openEditModal(ticketItem)} className="text-blue-600">Edit</button>
+                          </td>
+                          <td className="p-3 border-b border-gray-300">
+                            <button onClick={() => openDeleteModal(ticketItem)} className="text-red-600">Delete</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {createModalOpen && (
+              <Modal onClose={closeCreateModal}>
+                <CreateContentForm onSubmit={handleCreateSubmit} onCancel={closeCreateModal} />
+              </Modal>
+            )}
+
+            {editModalData && (
+              <Modal onClose={closeEditModal}>
+                <CreateContentForm initialData={editModalData} onSubmit={handleEditSubmit} onCancel={closeEditModal} />
+              </Modal>
+            )}
+
+            {deleteModalData && (
+              <Modal onClose={closeDeleteModal}>
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">Confirm Delete</h3>
+                  <p>Are you sure you want to delete "{deleteModalData.name}"?</p>
+                  <div className="mt-6 flex justify-end gap-4">
+                    <button onClick={closeDeleteModal} className="px-4 py-2 rounded border hover:bg-gray-100">Cancel</button>
+                    <button onClick={handleDeleteConfirm} className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Delete</button>
+                  </div>
+                </div>
+              </Modal>
+            )}
+          </section>
         </main>
       </div>
     </div>
