@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "../store/store";
 import { logoutUser } from "../features/auth/authUserSlice";
 
-const getBaseURL = () => {
+ const getBaseURL = () => {
   return "https://luckmytrip-backend-volume-6.onrender.com/api/v1";
 };
 
