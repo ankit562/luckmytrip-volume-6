@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
     listTickets,
     getTicketById,
@@ -14,10 +14,8 @@ export const fetchTickets = createAsyncThunk(
     async () => {
         const res = await listTickets();  
         return res.data;
-          // log response data
     }
 );
-
 
 export const fetchTicket = createAsyncThunk(
     'tickets/fetchTicket', async (id) => {
@@ -27,22 +25,21 @@ export const fetchTicket = createAsyncThunk(
 );
 
 export const createTicket = createAsyncThunk(
-    'tickets/createTicket', async (formData) => {
+    'tickets/createTicket', async (formData, { dispatch }) => {
         const res = await addTicket(formData);
+        dispatch(fetchTickets()); // Cleanly refetches the updated list
         return res.data;
     }
 );
 
 export const editTicket = createAsyncThunk(
   'tickets/editTicket',
-  async ({ id, formData }) => {
+  async ({ id, formData }, { dispatch }) => {
     const res = await updateTicket(id, formData);
+    dispatch(fetchTickets()); // Cleanly refetches the updated list
     return res.data;
   }
 );
-
-
-
 
 export const removeTicket = createAsyncThunk(
     'tickets/removeTicket', async (id) => {
@@ -82,12 +79,6 @@ const ticketSlice = createSlice({
             })
             .addCase(fetchTicket.fulfilled, (state, action) => {
                 state.selectedTicket = action.payload;
-            })
-            .addCase(createTicket.fulfilled, (state, action) => {
-                state.tickets.push(action.payload);
-            })
-            .addCase(editTicket.fulfilled, (state, action) => {
-                state.tickets = state.tickets.map(t => t._id === action.payload._id ? action.payload : t);
             })
             .addCase(removeTicket.fulfilled, (state, action) => {
                 state.tickets = state.tickets.filter(t => t._id !== action.payload);
