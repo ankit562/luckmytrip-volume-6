@@ -15,6 +15,7 @@ import { Loading } from './components/Loading';
 import { useEffect } from 'react';
 import { fetchProfile } from './features/auth/authUserSlice';
 import ComingSoon from './pages/comingsoon';
+import HowToTakePart from './pages/HowToTakePart';
 import Journey from './pages/dashboard/home/Journey';
 import Jackpot from './pages/dashboard/home/Jackpot';
 import SpinLuck from './pages/dashboard/home/SpinLuck';
@@ -178,6 +179,7 @@ if (!isInitialized) {
         <Route path="/faq" element={ <Faq/> }/>
         <Route path="/winners"  element={<WinnerList/>} />
         <Route path="/coming-soon" element={<ComingSoon />} />
+        <Route path="/take-part" element={<HowToTakePart />} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
 
       </Routes>
