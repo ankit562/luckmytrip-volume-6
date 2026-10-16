@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+ import React, { useEffect } from 'react';
 import Header from '../components/commonComponent/Header';
 import Footer from '../components/commonComponent/Footer';
 
@@ -23,13 +23,13 @@ const ComingSoon = () => {
       <Header />
 
       {/* Main Container */}
-      <div className="relative w-full overflow-hidden bg-[#F8FAFC] select-none font-['Work_Sans',sans-serif] flex items-center justify-center py-4 md:py-0 min-h-screen">
-
+      <div className="relative w-screen h-screen overflow-hidden bg-[#F8FAFC] select-none font-['Work_Sans',sans-serif] flex items-center justify-center">
+        
         {/* ----------------- MOBILE / PORTRAIT LAYOUT (< 768px) ----------------- */}
-        {/* ----------------- MOBILE / PORTRAIT LAYOUT (< 768px) ----------------- */}
-        <div className="block md:hidden relative w-full max-w-[480px] aspect-[3/4] overflow-hidden bg-white shadow-lg rounded-2xl mx-4">
-
-          {/* Vertical Poster Background - Shifted to object-top to pull the bag up */}
+         {/* ----------------- MOBILE / PORTRAIT LAYOUT (< 768px) ----------------- */}
+        <div className="block md:hidden relative w-full h-[100vh] overflow-hidden bg-white">
+          
+          {/* Vertical Poster Background - Full width/height without card borders */}
           <img
             src={mobileBg}
             alt="Luck Trip Travel Merchandise Poster"
@@ -37,13 +37,13 @@ const ComingSoon = () => {
           />
 
           {/* Content Overlay */}
-          <div className="relative z-10 w-full h-full flex flex-col justify-between p-5 sm:p-6">
-
-            {/* Top Left Text Container - Restricted to max-w-[55%] to keep text strictly on the left side */}
-            <div className="max-w-[55%] sm:max-w-[58%] pt-1 mt-10 sm:mt-8">
+          <div className="relative z-10 w-full h-full flex flex-col justify-between p-6 sm:p-8">
+            
+            {/* Top Left Text Container */}
+            <div className="max-w-[58%] pt-4 mt-12 sm:mt-14">
               {/* Main Headline */}
-              <h1
-                className="text-xl sm:text-2xl font-extrabold text-[#04415D] leading-[1.05] uppercase mb-1.5 tracking-wide"
+              <h1 
+                className="text-2xl sm:text-3xl font-extrabold text-[#04415D] leading-[1.05] uppercase mb-2 tracking-wide"
                 style={{ fontFamily: "'Baloo 2', cursive" }}
               >
                 WHAT IS<br />
@@ -51,25 +51,25 @@ const ComingSoon = () => {
               </h1>
 
               {/* Sub-headline */}
-              <p className="text-[11px] sm:text-xs font-bold text-[#0C4765] leading-snug mb-1.5">
+              <p className="text-xs sm:text-sm font-bold text-[#0C4765] leading-snug mb-2">
                 Premium travel merchandise—with an extra reason to share your journey.
               </p>
 
               {/* Body Description */}
-              <p className="text-[10px] sm:text-[11px] font-semibold text-[#1D4C5C] leading-tight">
+              <p className="text-[11px] sm:text-xs font-semibold text-[#1D4C5C] leading-tight">
                 Buy any product. Post your creative story.<br />
                 Our panel selects one standout story each week for a travel reward.
               </p>
             </div>
 
             {/* Bottom Left Button & Legal Section */}
-            <div className="pb-1 pt-1">
-              <button className="bg-[#EF3842] hover:bg-[#d82a34] text-white font-bold text-[11px] sm:text-xs px-4 py-2 rounded-full shadow-md flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer">
+            <div className="pb-10 pt-2">
+              <button className="bg-[#EF3842] hover:bg-[#d82a34] text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-md flex items-center gap-2 transition-transform active:scale-95 cursor-pointer">
                 <span>COMING SOON</span>
-                <span className="text-xs leading-none">&rarr;</span>
+                <span className="text-sm leading-none">&rarr;</span>
               </button>
 
-              <p className="text-[8px] sm:text-[9px] text-slate-600 font-semibold mt-1.5 pl-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-600 font-semibold mt-2 pl-0.5">
                 Judged promotion. Eligibility and terms apply.
               </p>
             </div>
@@ -80,23 +80,24 @@ const ComingSoon = () => {
 
         {/* ----------------- DESKTOP / WIDESCREEN LAYOUT (>= 768px) ----------------- */}
         <div className="hidden md:flex relative w-full h-[100vh] max-h-[950px] items-center justify-center">
-
-          {/* Horizontal Background Image */}
+          
+          {/* Horizontal Background Image with a subtle gradient mask at the top to blend edges */}
           <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
             <img
               src={desktopBg}
               alt="Luck Trip Travel Merchandise Background"
               className="w-full h-full object-contain object-right"
             />
+            {/* Soft gradient overlay at the very top edge to eliminate color contrast lines */}
             <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-[#F8FAFC] to-transparent opacity-85"></div>
           </div>
 
           {/* Content Overlay */}
           <div className="absolute inset-0 z-10 w-full h-full flex flex-col justify-between p-10 lg:p-14">
-
+            
             {/* Upper Section */}
             <div className="max-w-xl lg:max-w-2xl pt-4 pl-6 lg:pl-10">
-              <h1
+              <h1 
                 className="text-5xl lg:text-6xl font-extrabold text-[#04415D] leading-[1.05] uppercase mb-4 lg:mb-6 tracking-wide drop-shadow-sm"
                 style={{ fontFamily: "'Baloo 2', cursive" }}
               >
@@ -130,8 +131,9 @@ const ComingSoon = () => {
         </div>
 
       </div>
-      <Footer />
+       <Footer />
     </div>
+   
   );
 };
 
