@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 
 const PRODUCTS = [
   ["Travel Tee", "👕", 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
@@ -31,7 +31,7 @@ const FAQS = [
 ];
 
 export default function DemoPage() {
-  const [route, setRoute] = useState('home');
+  const [activeTab, setActiveTab] = useState('home');
   const [state, setState] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('lmt')) || { u: null, bal: 0, tx: [] };
@@ -61,18 +61,35 @@ export default function DemoPage() {
     } catch {}
   }, [state]);
 
+  // Handle URL hash navigation & smooth scrolling
   useEffect(() => {
     const handleHash = () => {
       const h = window.location.hash.slice(1) || 'home';
+      
       if (h === 'wallet' && !state.u) {
         setAuthMode('login');
         setAuthModal(true);
         window.location.hash = '#home';
-        setRoute('home');
+        setActiveTab('home');
         return;
       }
-      setRoute(h);
+
+      if (['home', 'how', 'shop'].includes(h)) {
+        setActiveTab('home');
+        if (h === 'how' || h === 'shop') {
+          setTimeout(() => {
+            const el = document.getElementById(h);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else {
+        setActiveTab(h);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     };
+
     window.addEventListener('hashchange', handleHash);
     handleHash();
     return () => window.removeEventListener('hashchange', handleHash);
@@ -167,8 +184,8 @@ export default function DemoPage() {
   const getInitials = (name) => name.split(' ').map(x => x[0]).join('');
 
   return (
-    <div className="bg-[#F3F7F7] text-[#0E3E52] min-h-screen box-border antialiased">
-      {/* Dynamic Font Loader */}
+    <div className="bg-[#F3F7F7] text-[#0E3E52] font-['Work_Sans',sans-serif] min-h-screen box-border antialiased">
+      {/* Font Loader */}
       <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* HEADER */}
@@ -178,14 +195,14 @@ export default function DemoPage() {
             Luck<b className="text-[#1F8E92]">My</b>Trip<i className="text-[#ED363E] not-italic">.</i>
           </a>
           <nav className="flex gap-[22px] ml-auto max-md:hidden">
-            <a href="#home" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'home' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Home</a>
-            <a href="#how" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'how' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>How it works</a>
-            <a href="#shop" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'shop' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Shop</a>
-            <a href="#winners" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'winners' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Winners</a>
-            <a href="#faq" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'faq' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>FAQ</a>
-            <a href="#contact" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${route === 'contact' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Contact</a>
+            <a href="#home" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'home' && (!window.location.hash || window.location.hash === '#home') ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Home</a>
+            <a href="#how" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${window.location.hash === '#how' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>How it works</a>
+            <a href="#shop" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${window.location.hash === '#shop' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Shop</a>
+            <a href="#winners" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'winners' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Winners</a>
+            <a href="#faq" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'faq' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>FAQ</a>
+            <a href="#contact" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'contact' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Contact</a>
           </nav>
-          <div id="acct" className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center">
             {state.u ? (
               <>
                 <a className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px] no-underline text-inherit" href="#wallet">Wallet ₹{state.bal}</a>
@@ -200,19 +217,25 @@ export default function DemoPage() {
 
       {/* MAIN CONTENT */}
       <main>
-        {/* HOME SECTION */}
-        <section className={`py-11 pb-18 ${route === 'home' ? '' : 'hidden'}`} id="v-home">
+        {/* HOME SECTION (#v-home) */}
+        <section className={`py-11 pb-18 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
           <div className="max-w-[1100px] mx-auto px-5">
+            {/* HERO */}
             <div className="grid grid-cols-[1.1fr_0.9fr] max-md:grid-cols-1 gap-10 items-center">
               <div>
                 <span className="inline-block bg-[#FFCD32] text-[#3a2d00] font-bold text-[13px] rounded-full px-3 py-1">Judged weekly. Not a lottery.</span>
-                <h1 className="font-['Baloo_2',sans-serif] text-[50px] max-md:text-[36px] font-extrabold tracking-[-0.5px] leading-[1.1] mt-4">Shop travel gear. Share your story. <span className="text-[#1F8E92]">Get selected for a trip.</span></h1>
-                <p className="text-[#587885] max-w-[60ch] text-[18px] my-[18px]">Buy any LuckMyTrip product, post your creative story, and our panel picks one standout story every week for a trip to Dubai or Thailand.</p>
+                <h1 className="font-['Baloo_2',sans-serif] text-[50px] max-md:text-[36px] font-extrabold tracking-[-0.5px] leading-[1.1] mt-4">
+                  Shop travel gear. Share your story. <span className="text-[#1F8E92]">Get selected for a trip.</span>
+                </h1>
+                <p className="text-[#587885] max-w-[60ch] text-[18px] my-[18px]">
+                  Buy any LuckMyTrip product, post your creative story, and our panel picks one standout story every week for a trip to Dubai or Thailand.
+                </p>
                 <div className="flex gap-[14px] flex-wrap items-center">
                   <a className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer no-underline inline-block" href="#shop">Shop the collection</a>
                   <a className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer no-underline inline-block" href="#how">See how it works</a>
                 </div>
               </div>
+
               <div className="bg-white border border-[#0E3E52]/20 rounded-[22px] p-[26px] shadow-2xl rotate-[2deg] max-md:rotate-0">
                 <div className="flex justify-between items-center gap-2.5">
                   <small className="text-[#587885] font-semibold">WEEKLY TRIP</small>
@@ -231,7 +254,8 @@ export default function DemoPage() {
               </div>
             </div>
 
-            <div className="mt-16" id="how">
+            {/* HOW TO TAKE PART SECTION (#how) */}
+            <div className="mt-16 scroll-mt-24" id="how">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">How to take part</h2>
               <p className="text-[#587885] max-w-[60ch] mt-[10px]">Three simple steps. The same rules apply to everyone.</p>
               <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 mt-[26px]">
@@ -258,7 +282,8 @@ export default function DemoPage() {
               </div>
             </div>
 
-            <div className="mt-16" id="shop">
+            {/* SHOP TRAVEL GEAR SECTION (#shop) */}
+            <div className="mt-16 scroll-mt-24" id="shop">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Shop travel gear</h2>
               <p className="text-[#587885] max-w-[60ch] mt-[10px]">Premium everyday travel merchandise, with an extra reason to share your journey.</p>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 mt-[26px]">
@@ -276,6 +301,7 @@ export default function DemoPage() {
               </div>
             </div>
 
+            {/* LATEST WINNERS SECTION */}
             <div className="mt-16">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Latest winners</h2>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 mt-[26px]">
@@ -297,8 +323,8 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* WINNERS SECTION */}
-        <section className={`py-11 pb-18 ${route === 'winners' ? '' : 'hidden'}`} id="v-winners">
+        {/* WINNERS SECTION (#v-winners) */}
+        <section className={`py-11 pb-18 ${activeTab === 'winners' ? '' : 'hidden'}`} id="v-winners">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Winners and their stories</h2>
             <p className="text-[#587885] max-w-[60ch] mt-[10px]">One standout story is chosen each week. Here are our recent winners and what made their stories shine.</p>
@@ -322,8 +348,8 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* FAQ SECTION */}
-        <section className={`py-11 pb-18 ${route === 'faq' ? '' : 'hidden'}`} id="v-faq">
+        {/* FAQ SECTION (#v-faq) */}
+        <section className={`py-11 pb-18 ${activeTab === 'faq' ? '' : 'hidden'}`} id="v-faq">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Frequently asked questions</h2>
             <p className="text-[#587885] max-w-[60ch] mt-[10px]">Clear answers, in plain language. Draft text: have your lawyer review before launch.</p>
@@ -338,8 +364,8 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* CONTACT SECTION */}
-        <section className={`py-11 pb-18 ${route === 'contact' ? '' : 'hidden'}`} id="v-contact">
+        {/* CONTACT SECTION (#v-contact) */}
+        <section className={`py-11 pb-18 ${activeTab === 'contact' ? '' : 'hidden'}`} id="v-contact">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Contact us</h2>
             <p className="text-[#587885] max-w-[60ch] mt-[10px]">Questions about an order, your wallet, or the weekly trip? We reply within 2 working days.</p>
@@ -363,8 +389,8 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* WALLET SECTION */}
-        <section className={`py-11 pb-18 ${route === 'wallet' ? '' : 'hidden'}`} id="v-wallet">
+        {/* WALLET SECTION (#v-wallet) */}
+        <section className={`py-11 pb-18 ${activeTab === 'wallet' ? '' : 'hidden'}`} id="v-wallet">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">My wallet</h2>
             <p className="text-[#587885] max-w-[60ch] mt-[10px]">Add money by UPI, card, net banking or crypto, and use it to buy products.</p>
