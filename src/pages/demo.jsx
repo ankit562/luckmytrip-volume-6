@@ -3,9 +3,7 @@
 const PRODUCTS = [
   ["Travel Tee", "👕", 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
   ["Coffee Mug", "☕", 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]"],
-  ["Phone Case", "📱", 499, "Protection that looks like a postcard.", "bg-[#EDE4F5]"],
   ["Luggage Tag", "🏷️", 349, "Spot your bag in seconds.", "bg-[#FDE3E4]"],
-  ["Tote Bag", "👜", 449, "Carry the day, light.", "bg-[#E8F4D8]"],
   ["Water Bottle", "🧴", 599, "Stay hydrated on every route.", "bg-[#E3F6F7]"],
   ["Travel Cap", "🧢", 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"],
   ["Sunglasses", "🕶️", 699, "Shades for the window seat.", "bg-[#EDE4F5]"]
@@ -492,55 +490,40 @@ export default function DemoPage() {
               <div>
                 <label className="font-semibold text-[14px]">Choose your bank</label>
                 <select className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]">
-                  <option>State Bank of India</option>
                   <option>HDFC Bank</option>
                   <option>ICICI Bank</option>
+                  <option>SBI</option>
                   <option>Axis Bank</option>
-                  <option>Kotak Mahindra Bank</option>
                 </select>
-                <p className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-4">You will be redirected to your bank to authorise the payment.</p>
               </div>
             )}
 
             {curPay.m === 'crypto' && (
               <div>
-                <label className="font-semibold text-[14px]">Coin and network</label>
-                <select className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]">
-                  <option>USDT (TRC20)</option>
-                  <option>USDT (BEP20)</option>
-                  <option>BTC</option>
-                  <option>ETH</option>
-                </select>
-                <p className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-4">A wallet address and the exact amount are shown after you confirm. Network fees apply.</p>
+                <p className="text-[#587885] my-2">Pay securely with USDC or USDT on Polygon/Ethereum network.</p>
               </div>
             )}
 
             {curPay.m === 'wallet' && (
-              <p className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-4">Wallet balance: <b>₹{state.bal}</b></p>
+              <div>
+                <p className="text-[#587885] my-2">Current wallet balance: <b>₹{state.bal}</b></p>
+              </div>
             )}
 
-            <div className="flex gap-[14px] flex-wrap items-center mt-3">
+            <div className="flex gap-[14px] flex-wrap items-center mt-5">
               <button className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer" onClick={executePayment}>Pay ₹{curPay.amt}</button>
               <button className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer" onClick={() => setPayModal(false)}>Cancel</button>
             </div>
-            <p className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-4">Demo only: no real payment is made.</p>
           </div>
         </div>
       )}
 
-      {/* TOAST */}
+      {/* TOAST NOTIFICATION */}
       {toastMsg && (
-        <div className="fixed left-1/2 bottom-6 -translate-x-1/2 bg-[#104A64] text-white py-3 px-[22px] rounded-full font-semibold z-50 max-w-[90vw] shadow-lg">
+        <div className="fixed bottom-6 right-6 bg-[#0E3E52] text-white py-3 px-5 rounded-full shadow-lg font-semibold text-[14px] z-50 animate-bounce">
           {toastMsg}
         </div>
       )}
-
-      {/* FOOTER */}
-      <footer className="border-t border-[#0E3E52]/20 py-[30px] text-[#587885] text-[13.5px]">
-        <div className="max-w-[1100px] mx-auto px-5">
-          Judged promotion. Purchase, posting requirements, eligibility and full terms apply. Wallet and payments in this demo are simulated. © 2026 LuckMyTrip
-        </div>
-      </footer>
     </div>
   );
 }
