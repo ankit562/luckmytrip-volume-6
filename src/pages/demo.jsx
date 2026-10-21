@@ -1,21 +1,20 @@
  import React, { useState, useEffect } from 'react';
 
+// Importing product images from the specified assets path
+import travelTeeImg from '../components/assets/images/travel tee.png';
+import coffeeMugImg from '../components/assets/images/coffee mug.png';
+import luggageTagImg from '../components/assets/images/Luggage Tag.png';
+import waterBottleImg from '../components/assets/images/water bottle.png';
+import waterCapImg from '../components/assets/images/cap.png';
+import goggleImg from '../components/assets/images/goggle.png';
+
 const PRODUCTS = [
-  ["Travel Tee", "👕", 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
-  ["Coffee Mug", "☕", 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]"],
-  ["Luggage Tag", "🏷️", 349, "Spot your bag in seconds.", "bg-[#FDE3E4]"],
-  ["Water Bottle", "🧴", 599, "Stay hydrated on every route.", "bg-[#E3F6F7]"],
-  ["Travel Cap", "🧢", 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"],
-  ["Sunglasses", "🕶️", 699, "Shades for the window seat.", "bg-[#EDE4F5]"]
-];
-
-const COLORS = ["bg-[#ED363E]", "bg-[#1F8E92]", "bg-[#652D8F]", "bg-[#d9a400]"];
-
-const WINNERS = [
-  ["Aarav K.", "Pune", "Dubai", "Week 12", "My grandfather's old suitcase finally got its second stamp. I wrote about the trip he never took and the one I'm taking for him."],
-  ["Meera S.", "Bengaluru", "Thailand", "Week 11", "I turned my chai-stained mug into a map of every city I've dreamed about. The panel loved the small details."],
-  ["Rohan D.", "Delhi", "Dubai", "Week 10", "A 30-second reel of my phone case 'travelling' across my desk. Tiny story, big imagination."],
-  ["Isha P.", "Mumbai", "Thailand", "Week 9", "I wrote a letter to my future self, packed into a tote bag. Opening it on a beach in Phuket."]
+  ["Travel Tee", travelTeeImg, 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
+  ["Coffee Mug", coffeeMugImg, 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]"],
+  ["Luggage Tag", luggageTagImg, 349, "Spot your bag in seconds.", "bg-[#FDE3E4]"],
+  ["Water Bottle", waterBottleImg, 599, "Stay hydrated on every route.", "bg-[#E3F6F7]"],
+  ["Travel Cap", waterCapImg, 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"],
+  ["Sunglasses", goggleImg, 699, "Shades for the window seat.", "bg-[#EDE4F5]"]
 ];
 
 const FAQS = [
@@ -179,42 +178,46 @@ export default function DemoPage() {
     showToast('Thanks! We will reply within 2 working days.');
   };
 
-  const getInitials = (name) => name.split(' ').map(x => x[0]).join('');
-
   return (
-    <div className="bg-[#F3F7F7] text-[#0E3E52] font-['Work_Sans',sans-serif] min-h-screen box-border antialiased">
+    <div className="bg-[#F3F7F7] text-[#0E3E52] font-['Work_Sans',sans-serif] min-h-screen box-border antialiased flex flex-col justify-between">
       {/* Font Loader */}
       <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       {/* HEADER */}
       <header className="sticky top-0 z-20 bg-[#F3F7F7] border-b border-[#0E3E52]/20">
-        <div className="max-w-[1100px] mx-auto px-5 flex items-center gap-5 h-[68px]">
+        <div className="max-w-[1100px] mx-auto px-5 py-3.5 flex flex-wrap items-center justify-between gap-y-3">
+          {/* Logo */}
           <a className="font-['Baloo_2',sans-serif] font-extrabold text-[23px] text-inherit no-underline" href="#home">
             Luck<b className="text-[#1F8E92]">My</b>Trip<i className="text-[#ED363E] not-italic">.</i>
           </a>
-          <nav className="flex gap-[22px] ml-auto max-md:hidden">
-            <a href="#home" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'home' && (!window.location.hash || window.location.hash === '#home') ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Home</a>
-            <a href="#how" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${window.location.hash === '#how' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>How it works</a>
-            <a href="#shop" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${window.location.hash === '#shop' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Shop</a>
-            <a href="#winners" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'winners' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Winners</a>
-            <a href="#faq" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'faq' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>FAQ</a>
-            <a href="#contact" className={`no-underline font-semibold text-[15px] py-1 border-b-2 ${activeTab === 'contact' ? 'border-[#52C2C5]' : 'border-transparent hover:border-[#52C2C5]'}`}>Contact</a>
-          </nav>
-          <div className="flex gap-2 items-center">
-            {state.u ? (
-              <>
-                <a className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px] no-underline text-inherit" href="#wallet">Wallet ₹{state.bal}</a>
-                <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={handleLogout}>Log out</button>
-              </>
-            ) : (
-              <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={() => { setAuthMode('login'); setAuthModal(true); }}>Log in</button>
-            )}
+
+          {/* Nav links + Auth button: wrapped layout on mobile, right-aligned on desktop */}
+          <div className="flex items-center gap-[22px] max-lg:w-full max-lg:order-3 max-lg:justify-between flex-wrap lg:ml-auto">
+            <nav className="flex gap-[22px] max-md:gap-x-[12px] flex-wrap items-center">
+              <a href="#home" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${activeTab === 'home' && (!window.location.hash || window.location.hash === '#home') ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>Home</a>
+              <a href="#how" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${window.location.hash === '#how' ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>How it works</a>
+              <a href="#shop" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${window.location.hash === '#shop' ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>Shop</a>
+              <a href="#winners" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${activeTab === 'winners' ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>Winners</a>
+              <a href="#faq" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${window.location.hash === '#faq' ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>FAQ</a>
+              <a href="#contact" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${window.location.hash === '#contact' ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>Contact</a>
+            </nav>
+
+            <div className="flex gap-2 items-center">
+              {state.u ? (
+                <>
+                  <a className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px] no-underline text-inherit" href="#wallet">Wallet ₹{state.bal}</a>
+                  <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={handleLogout}>Log out</button>
+                </>
+              ) : (
+                <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={() => { setAuthMode('login'); setAuthModal(true); }}>Log in</button>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
       {/* MAIN CONTENT */}
-      <main>
+      <main className="flex-1">
         {/* HOME SECTION (#v-home) */}
         <section className={`py-11 pb-18 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
           <div className="max-w-[1100px] mx-auto px-5">
@@ -287,7 +290,9 @@ export default function DemoPage() {
               <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 mt-[26px]">
                 {PRODUCTS.map((p, i) => (
                   <div key={i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px]">
-                    <div className={`h-[120px] rounded-[14px] grid place-items-center text-[54px] ${p[4]}`}>{p[1]}</div>
+                    <div className={`h-[120px] rounded-[14px] overflow-hidden flex items-center justify-center p-2 ${p[4]}`}>
+                      <img src={p[1]} alt={p[0]} className="w-full h-full object-contain" />
+                    </div>
                     <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold mt-[6px]">{p[0]}</h3>
                     <p className="text-[#587885] text-[14px] flex-1">{p[3]}</p>
                     <div className="flex justify-between items-center mt-2">
@@ -298,51 +303,19 @@ export default function DemoPage() {
                 ))}
               </div>
             </div>
-
-            {/* LATEST WINNERS SECTION */}
-            <div className="mt-16">
-              <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Latest winners</h2>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 mt-[26px]">
-                {WINNERS.slice(0, 2).map((w, i) => (
-                  <div key={i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px]">
-                    <div className="flex gap-[14px] items-center">
-                      <div className={`w-[56px] h-[56px] rounded-full grid place-items-center text-white font-['Baloo_2',sans-serif] font-extrabold text-[20px] flex-shrink-0 ${COLORS[i % 4]}`}>{getInitials(w[0])}</div>
-                      <div>
-                        <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold">{w[0]}, {w[1]}</h3>
-                        <small className="text-[#587885]">{w[3]} · Trip to {w[2]}</small>
-                      </div>
-                    </div>
-                    <blockquote className="mt-1.5 text-[15.5px]">“{w[4]}”</blockquote>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-[18px]"><a className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer no-underline inline-block" href="#winners">See all winners</a></p>
-            </div>
           </div>
         </section>
 
         {/* WINNERS SECTION (#v-winners) */}
         <section className={`py-11 pb-18 ${activeTab === 'winners' ? '' : 'hidden'}`} id="v-winners">
-          <div className="max-w-[1100px] mx-auto px-5">
-            <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Winners and their stories</h2>
-            <p className="text-[#587885] max-w-[60ch] mt-[10px]">One standout story is chosen each week. Here are our recent winners and what made their stories shine.</p>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 mt-[26px]">
-              {WINNERS.map((w, i) => (
-                <div key={i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px]">
-                  <div className="flex gap-[14px] items-center">
-                    <div className={`w-[56px] h-[56px] rounded-full grid place-items-center text-white font-['Baloo_2',sans-serif] font-extrabold text-[20px] flex-shrink-0 ${COLORS[i % 4]}`}>{getInitials(w[0])}</div>
-                    <div>
-                      <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold">{w[0]}, {w[1]}</h3>
-                      <small className="text-[#587885]">{w[3]} · Trip to {w[2]}</small>
-                    </div>
-                  </div>
-                  <blockquote className="mt-1.5 text-[15.5px]">“{w[4]}”</blockquote>
-                </div>
-              ))}
-            </div>
-            <div className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-[22px]">
-              <b>Sample content.</b> These winners are placeholders for the demo. Publish real winners' photos and stories only with their written consent.
-            </div>
+          <div className="max-w-[1100px] mx-auto px-5 text-center py-16">
+            <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Winners Page Coming Soon</h2>
+            <p className="text-[#587885] max-w-[50ch] mx-auto mt-[10px]">
+              We are moving our weekly winners and their travel stories to a dedicated page! Stay tuned.
+            </p>
+            <a className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer no-underline inline-block mt-6" href="#home">
+              Back to Home
+            </a>
           </div>
         </section>
 
@@ -418,6 +391,13 @@ export default function DemoPage() {
           </div>
         </section>
       </main>
+
+      {/* FOOTER NOTICE / DISCLAIMER */}
+      <footer className="bg-[#EAF2F2] border-t border-[#0E3E52]/10 py-6 px-5 mt-12 text-center text-[#587885] text-[13px]">
+        <div className="max-w-[1100px] mx-auto">
+          Judged promotion. Purchase, posting requirements, eligibility and full terms apply. Wallet and payments in this demo are simulated. © 2026 LuckMyTrip
+        </div>
+      </footer>
 
       {/* AUTH MODAL */}
       {authModal && (
