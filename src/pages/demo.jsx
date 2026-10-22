@@ -1,4 +1,4 @@
- import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Importing product images from the specified assets path
 import travelTeeImg from '../components/assets/images/travel tee.png';
@@ -6,15 +6,13 @@ import coffeeMugImg from '../components/assets/images/coffee mug.png';
 import luggageTagImg from '../components/assets/images/Luggage Tag.png';
 import waterBottleImg from '../components/assets/images/water bottle.png';
 import waterCapImg from '../components/assets/images/cap.png';
-import goggleImg from '../components/assets/images/goggle.png';
 
 const PRODUCTS = [
   ["Travel Tee", travelTeeImg, 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
   ["Coffee Mug", coffeeMugImg, 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]"],
   ["Luggage Tag", luggageTagImg, 349, "Spot your bag in seconds.", "bg-[#FDE3E4]"],
   ["Water Bottle", waterBottleImg, 599, "Stay hydrated on every route.", "bg-[#E3F6F7]"],
-  ["Travel Cap", waterCapImg, 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"],
-  ["Sunglasses", goggleImg, 699, "Shades for the window seat.", "bg-[#EDE4F5]"]
+  ["Travel Cap", waterCapImg, 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"]
 ];
 
 const FAQS = [
