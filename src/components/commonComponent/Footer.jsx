@@ -59,7 +59,7 @@ const Footer = () => {
             {/* WhatsApp Button */}
             <div className="mb-5">
               <a 
-                href="https://wa.me/+919891344354" 
+                href="https://wa.me/+971556477975" 
                 className="w-full flex items-center justify-between bg-teal-700 hover:bg-teal-800 text-white px-4 py-3 rounded-lg transition-colors"
               >
                 <div className="text-left">
