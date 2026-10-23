@@ -76,7 +76,7 @@ const Footer = () => {
             <div className="mb-4">
               <div className="bg-gray-200 px-4 py-3 rounded-lg">
                 <div className="text-sm font-bold text-gray-800 font-montserrat">Call us:</div>
-                <div className="text-sm text-gray-700 font-montserrat">+919891344354</div>
+                <div className="text-sm text-gray-700 font-montserrat">+971556477975</div>
               </div>
             </div>
             
