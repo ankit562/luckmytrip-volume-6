@@ -1,4 +1,4 @@
-import { useState } from "react";
+ import { useState } from "react";
 import {
   Home,
   FileText,
@@ -74,10 +74,10 @@ const LeftsideNavbar = ({ user }) => {
         <div
           className={`gap-1 flex items-center justify-start px-5 rounded-lg transition cursor-pointer hover:bg-blue-200
            ${
-             openSection === "pages" || isActiveStartsWith("/home") || isActiveStartsWith("/explore")
+             openSection === "pages" || isActiveStartsWith("/home") || isActiveStartsWith("/explore") || isActiveStartsWith("/dashboard/products")
                ? "bg-blue-400 font-semibold text-black"
                : "text-gray-700"
-           }`}
+            }`}
           onClick={() => handleSection("pages")}
         >
           <BookOpen className="w-5 h-5" />
@@ -176,6 +176,43 @@ const LeftsideNavbar = ({ user }) => {
                   <ChevronRight className="w-5 h-5" />
                   <button className="text-left px-4 py-2">
                     <Link to={"/explore/goldenwinner"}>Golden winner</Link>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Products submenu */}
+            <div
+              className={`gap-2 flex items-center justify-start px-6 rounded-lg cursor-pointer ${
+                pagesOpen === "products" || isActiveStartsWith("/dashboard/products")
+                  ? "bg-blue-300 font-semibold text-black"
+                  : ""
+              }`}
+              onClick={() => handlePages("products")}
+            >
+              <ChevronRight className="w-5 h-5" />
+              <button className="text-left py-2">Products</button>
+            </div>
+            {pagesOpen === "products" && (
+              <div className="flex flex-col border-gray-100">
+                <div
+                  className={`flex items-center justify-start py-1 px-8 cursor-pointer ${
+                    isActive("/dashboard/products/coupon") ? "bg-blue-200 text-black" : ""
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                  <button className="text-left px-4 py-2">
+                    <Link to={"/dashboard/products/coupon"}>Coupon</Link>
+                  </button>
+                </div>
+                <div
+                  className={`flex items-center justify-start py-1 px-8 cursor-pointer ${
+                    isActive("/dashboard/products/product") ? "bg-blue-200 text-black" : ""
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                  <button className="text-left px-4 py-2">
+                    <Link to={"/dashboard/products/product"}>Product</Link>
                   </button>
                 </div>
               </div>
@@ -302,7 +339,7 @@ const LeftsideNavbar = ({ user }) => {
           {/* Mobile Pages */}
           <div
             className={`gap-1 flex items-center justify-start px-5 rounded-lg transition cursor-pointer hover:bg-blue-200 ${
-              openSection === "pages" || isActiveStartsWith("/home") || isActiveStartsWith("/explore")
+              openSection === "pages" || isActiveStartsWith("/home") || isActiveStartsWith("/explore") || isActiveStartsWith("/dashboard/products")
                 ? "bg-blue-400 font-semibold text-black"
                 : "text-gray-700"
             }`}
@@ -403,6 +440,43 @@ const LeftsideNavbar = ({ user }) => {
                     <ChevronRight className="w-5 h-5" />
                     <button className="text-left px-4 py-2">
                       <Link to={"/explore/goldenwinner"}>Golden winner</Link>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile Products Submenu */}
+              <div
+                className={`gap-2 flex items-center justify-start px-6 rounded-lg cursor-pointer ${
+                  pagesOpen === "products" || isActiveStartsWith("/dashboard/products")
+                    ? "bg-blue-200 font-semibold text-black"
+                    : ""
+                }`}
+                onClick={() => handlePages("products")}
+              >
+                <ChevronRight className="w-5 h-5" />
+                <button className="text-left py-2">Products</button>
+              </div>
+              {pagesOpen === "products" && (
+                <div className="flex flex-col border-gray-100">
+                  <div
+                    className={`flex items-center justify-start py-1 px-8 cursor-pointer ${
+                      isActive("/dashboard/products/coupon") ? "bg-blue-200 text-black" : ""
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                    <button className="text-left px-4 py-2">
+                      <Link to={"/dashboard/products/coupon"}>Coupon</Link>
+                    </button>
+                  </div>
+                  <div
+                    className={`flex items-center justify-start py-1 px-8 cursor-pointer ${
+                      isActive("/dashboard/products/product") ? "bg-blue-200 text-black" : ""
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                    <button className="text-left px-4 py-2">
+                      <Link to={"/dashboard/products/product"}>Product</Link>
                     </button>
                   </div>
                 </div>

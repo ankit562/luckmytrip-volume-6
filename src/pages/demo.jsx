@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { signupUser, loginUser, logoutUser } from '../features/auth/authUserSlice';
+import toast from 'react-hot-toast';
 
 // Importing product images from the specified assets path
 import travelTeeImg from '../components/assets/images/travel tee.png';
@@ -8,11 +11,11 @@ import waterBottleImg from '../components/assets/images/water bottle.png';
 import waterCapImg from '../components/assets/images/cap.png';
 
 const PRODUCTS = [
-  ["Travel Tee", travelTeeImg, 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]"],
-  ["Coffee Mug", coffeeMugImg, 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]"],
-  ["Luggage Tag", luggageTagImg, 349, "Spot your bag in seconds.", "bg-[#FDE3E4]"],
-  ["Water Bottle", waterBottleImg, 599, "Stay hydrated on every route.", "bg-[#E3F6F7]"],
-  ["Travel Cap", waterCapImg, 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]"]
+  ["Travel Tee", travelTeeImg, 799, "Soft cotton, original travel prints, front & back.", "bg-[#E3F6F7]", "TEE100"],
+  ["Coffee Mug", coffeeMugImg, 399, "Your morning ritual, with a little wanderlust.", "bg-[#FFF3CC]", null],
+  ["Luggage Tag", luggageTagImg, 349, "Spot your bag in seconds.", "bg-[#FDE3E4]", "TAG349"],
+  ["Water Bottle", waterBottleImg, 599, "Stay hydrated on every route.", "bg-[#E3F6F7]", "FREE599"],
+  ["Travel Cap", waterCapImg, 449, "Sun-ready, trip-ready.", "bg-[#FFF3CC]", null]
 ];
 
 const FAQS = [
@@ -26,20 +29,24 @@ const FAQS = [
 ];
 
 export default function DemoPage() {
+  const dispatch = useDispatch();
+  const { user, loading } = useSelector((state) => state.auth);
+
   const [activeTab, setActiveTab] = useState('home');
-  const [state, setState] = useState(() => {
+  
+  // Local state for wallet and transaction logs simulation
+  const [localWallet, setLocalWallet] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('lmt')) || { u: null, bal: 0, tx: [] };
+      return JSON.parse(localStorage.getItem('lmt_wallet')) || { bal: 0, tx: [] };
     } catch {
-      return { u: null, bal: 0, tx: [] };
+      return { bal: 0, tx: [] };
     }
   });
 
-  const [toastMsg, setToastMsg] = useState(null);
   const [authModal, setAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
   const [authName, setAuthName] = useState('');
-  const [authEmail, setAuthEmail] = useState('');
+  const [authEmailOrPhone, setAuthEmailOrPhone] = useState('');
   const [authPass, setAuthPass] = useState('');
 
   const [payModal, setPayModal] = useState(false);
@@ -52,16 +59,16 @@ export default function DemoPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('lmt', JSON.stringify(state));
+      localStorage.setItem('lmt_wallet', JSON.stringify(localWallet));
     } catch {}
-  }, [state]);
+  }, [localWallet]);
 
   // Handle URL hash navigation & smooth scrolling
   useEffect(() => {
     const handleHash = () => {
       const h = window.location.hash.slice(1) || 'home';
       
-      if (h === 'wallet' && !state.u) {
+      if (h === 'wallet' && !user) {
         setAuthMode('login');
         setAuthModal(true);
         window.location.hash = '#home';
@@ -88,92 +95,150 @@ export default function DemoPage() {
     window.addEventListener('hashchange', handleHash);
     handleHash();
     return () => window.removeEventListener('hashchange', handleHash);
-  }, [state.u]);
+  }, [user]);
 
-  const showToast = (msg) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 3200);
-  };
-
-  const handleLogin = (isLogin) => {
-    if (!authEmail.trim() || !authPass) {
-      showToast('Enter your details to continue');
+  // Real Redux Login Handler
+  const handleLoginSubmit = async () => {
+    if (!authEmailOrPhone.trim() || !authPass) {
+      toast.error('Enter your email/phone and password');
       return;
     }
-    const name = isLogin ? authEmail.split('@')[0] : (authName || authEmail);
-    setState(prev => ({ ...prev, u: { name, email: authEmail } }));
-    setAuthModal(false);
-    showToast(`Welcome, ${name}!`);
+    const isEmail = authEmailOrPhone.includes('@');
+    const credentials = {
+      [isEmail ? 'email' : 'phone']: authEmailOrPhone.trim(),
+      password: authPass,
+    };
+
+    try {
+      await dispatch(loginUser(credentials)).unwrap();
+      toast.success('Logged in successfully!');
+      setAuthModal(false);
+      setAuthEmailOrPhone('');
+      setAuthPass('');
+    } catch (err) {
+      toast.error(err?.message || 'Login failed');
+    }
   };
 
-  const handleLogout = () => {
-    setState(prev => ({ ...prev, u: null }));
+  // Real Redux Signup Handler
+  const handleSignupSubmit = async () => {
+    if (!authName.trim() || !authEmailOrPhone.trim() || !authPass) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    const isEmail = authEmailOrPhone.includes('@');
+    const payload = {
+      fullName: authName.trim(),
+      email: isEmail ? authEmailOrPhone.trim() : '',
+      phone: !isEmail ? authEmailOrPhone.trim() : '',
+      password: authPass,
+    };
+
+    try {
+      await dispatch(signupUser(payload)).unwrap();
+      toast.success('Account created successfully!');
+      setAuthModal(false);
+      setAuthName('');
+      setAuthEmailOrPhone('');
+      setAuthPass('');
+    } catch (err) {
+      toast.error(err?.message || 'Signup failed');
+    }
+  };
+
+  const handleLogoutClick = () => {
+    dispatch(logoutUser());
     window.location.hash = '#home';
-    showToast('Logged out');
+    toast.success('Logged out successfully');
   };
 
   const buyProduct = (index) => {
-    if (!state.u) {
-      showToast('Please log in to buy');
+    if (!user) {
+      toast.error('Please log in to buy');
       setAuthMode('login');
       setAuthModal(true);
       return;
     }
-    setCurPay({ kind: 'buy', amt: PRODUCTS[index][2], label: PRODUCTS[index][0], m: 'upi', f1: '' });
+    
+    const product = PRODUCTS[index];
+    const basePrice = product[2];
+    const adminCoupon = product[5]; // Option A: Admin assigned coupon code if available
+
+    // Option A: Automatically apply coupon discount if admin set one for this product
+    let finalAmt = basePrice;
+    let appliedCouponCode = null;
+
+    if (adminCoupon) {
+      appliedCouponCode = adminCoupon;
+      finalAmt = 0; // Drops down to ₹0 as per admin configuration
+    }
+
+    setCurPay({
+      kind: 'buy',
+      baseAmt: basePrice,
+      amt: finalAmt,
+      label: product[0],
+      coupon: appliedCouponCode,
+      m: 'upi',
+      f1: ''
+    });
     setPayModal(true);
   };
 
   const handleTopup = () => {
     const amt = Number(walletAmt);
     if (!(amt >= 1)) {
-      showToast('Enter a valid amount');
+      toast.error('Enter a valid amount');
       return;
     }
-    setCurPay({ kind: 'topup', amt, label: 'Add money to wallet', m: 'upi', f1: '' });
+    setCurPay({ kind: 'topup', baseAmt: amt, amt, label: 'Add money to wallet', m: 'upi', f1: '' });
     setPayModal(true);
   };
 
   const executePayment = () => {
     const o = curPay;
-    if (o.m === 'upi' && !o.f1?.includes('@')) {
-      showToast('Enter a valid UPI ID');
-      return;
-    }
-    if (o.m === 'card' && (o.f1 || '').replace(/\D/g, '').length < 12) {
-      showToast('Enter a valid card number');
-      return;
-    }
-    if (o.m === 'wallet' && state.bal < o.amt) {
-      showToast('Not enough wallet balance. Add money first.');
-      return;
+    if (o.amt > 0) {
+      if (o.m === 'upi' && !o.f1?.includes('@')) {
+        toast.error('Enter a valid UPI ID');
+        return;
+      }
+      if (o.m === 'card' && (o.f1 || '').replace(/\D/g, '').length < 12) {
+        toast.error('Enter a valid card number');
+        return;
+      }
+      if (o.m === 'wallet' && localWallet.bal < o.amt) {
+        toast.error('Not enough wallet balance. Add money first.');
+        return;
+      }
     }
 
-    setState(prev => {
+    setLocalWallet(prev => {
       let newBal = prev.bal;
       let newTx = [...prev.tx];
       if (o.kind === 'topup') {
         newBal += o.amt;
         newTx.push([`Added via ${o.m.toUpperCase()}`, `+₹${o.amt}`]);
       } else {
-        if (o.m === 'wallet') newBal -= o.amt;
-        newTx.push([o.label, `−₹${o.amt}`]);
+        if (o.m === 'wallet' && o.amt > 0) newBal -= o.amt;
+        const priceLabel = o.amt === 0 ? `₹0 (Auto Coupon: ${o.coupon})` : `−₹${o.amt}`;
+        newTx.push([o.label, priceLabel]);
       }
-      return { ...prev, bal: newBal, tx: newTx };
+      return { bal: newBal, tx: newTx };
     });
 
     setPayModal(false);
-    showToast(o.kind === 'buy' ? 'Order confirmed! Now post your story and tag @LuckMyTrip' : `₹${o.amt} added to your wallet`);
+    toast.success(o.kind === 'buy' ? 'Order confirmed! Post your story & tag @LuckMyTrip' : `₹${o.amt} added to wallet`);
   };
 
   const submitContact = () => {
     if (!contactName || !contactEmail || !contactMsg) {
-      showToast('Please fill in all fields');
+      toast.error('Please fill in all fields');
       return;
     }
     setContactName('');
     setContactEmail('');
     setContactMsg('');
-    showToast('Thanks! We will reply within 2 working days.');
+    toast.success('Thanks! We will reply within 2 working days.');
   };
 
   return (
@@ -189,7 +254,7 @@ export default function DemoPage() {
             Luck<b className="text-[#1F8E92]">My</b>Trip<i className="text-[#ED363E] not-italic">.</i>
           </a>
 
-          {/* Nav links + Auth button: wrapped layout on mobile, right-aligned on desktop */}
+          {/* Nav links + Auth button */}
           <div className="flex items-center gap-[22px] max-lg:w-full max-lg:order-3 max-lg:justify-between flex-wrap lg:ml-auto">
             <nav className="flex gap-[22px] max-md:gap-x-[12px] flex-wrap items-center">
               <a href="#home" className={`no-underline font-semibold text-[15px] max-md:text-[14px] py-0.5 border-b-2 ${activeTab === 'home' && (!window.location.hash || window.location.hash === '#home') ? 'border-[#1F8E92]' : 'border-transparent hover:border-[#1F8E92]'}`}>Home</a>
@@ -201,10 +266,10 @@ export default function DemoPage() {
             </nav>
 
             <div className="flex gap-2 items-center">
-              {state.u ? (
+              {user ? (
                 <>
-                  <a className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px] no-underline text-inherit" href="#wallet">Wallet ₹{state.bal}</a>
-                  <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={handleLogout}>Log out</button>
+                  <a className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px] no-underline text-inherit" href="#wallet">Wallet ₹{localWallet.bal}</a>
+                  <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={handleLogoutClick}>Log out</button>
                 </>
               ) : (
                 <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={() => { setAuthMode('login'); setAuthModal(true); }}>Log in</button>
@@ -216,7 +281,7 @@ export default function DemoPage() {
 
       {/* MAIN CONTENT */}
       <main className="flex-1">
-        {/* HOME SECTION (#v-home) */}
+        {/* HOME SECTION */}
         <section className={`py-11 pb-18 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
           <div className="max-w-[1100px] mx-auto px-5">
             {/* HERO */}
@@ -253,7 +318,7 @@ export default function DemoPage() {
               </div>
             </div>
 
-            {/* HOW TO TAKE PART SECTION (#how) */}
+            {/* HOW IT WORKS */}
             <div className="mt-16 scroll-mt-24" id="how">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">How to take part</h2>
               <p className="text-[#587885] max-w-[60ch] mt-[10px]">Three simple steps. The same rules apply to everyone.</p>
@@ -274,27 +339,33 @@ export default function DemoPage() {
                   <p className="text-[#587885] mt-[6px]">Our panel reviews eligible stories using published judging criteria.</p>
                 </div>
               </div>
-              <div className="flex gap-2 flex-wrap mt-[18px]">
-                <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">Creativity</span>
-                <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">Originality</span>
-                <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">Storytelling</span>
-              </div>
             </div>
 
-            {/* SHOP TRAVEL GEAR SECTION (#shop) */}
+            {/* SHOP TRAVEL GEAR */}
             <div className="mt-16 scroll-mt-24" id="shop">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Shop travel gear</h2>
               <p className="text-[#587885] max-w-[60ch] mt-[10px]">Premium everyday travel merchandise, with an extra reason to share your journey.</p>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 mt-[26px]">
                 {PRODUCTS.map((p, i) => (
-                  <div key={i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px]">
+                  <div key={i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px] relative">
+                    {p[5] && (
+                      <span className="absolute top-3 right-3 bg-[#ED363E] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        Admin Coupon Active
+                      </span>
+                    )}
                     <div className={`h-[120px] rounded-[14px] overflow-hidden flex items-center justify-center p-2 ${p[4]}`}>
                       <img src={p[1]} alt={p[0]} className="w-full h-full object-contain" />
                     </div>
                     <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold mt-[6px]">{p[0]}</h3>
                     <p className="text-[#587885] text-[14px] flex-1">{p[3]}</p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="font-['Baloo_2',sans-serif] font-bold text-[20px]">₹{p[2]}</span>
+                      <span className="font-['Baloo_2',sans-serif] font-bold text-[20px]">
+                        {p[5] ? (
+                          <span>₹0 <span className="line-through text-[13px] text-[#587885] font-normal">₹{p[2]}</span></span>
+                        ) : (
+                          `₹{p[2]}`
+                        )}
+                      </span>
                       <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={() => buyProduct(i)}>Buy</button>
                     </div>
                   </div>
@@ -304,7 +375,7 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* WINNERS SECTION (#v-winners) */}
+        {/* WINNERS SECTION */}
         <section className={`py-11 pb-18 ${activeTab === 'winners' ? '' : 'hidden'}`} id="v-winners">
           <div className="max-w-[1100px] mx-auto px-5 text-center py-16">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Winners Page Coming Soon</h2>
@@ -317,11 +388,11 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* FAQ SECTION (#v-faq) */}
+        {/* FAQ SECTION */}
         <section className={`py-11 pb-18 ${activeTab === 'faq' ? '' : 'hidden'}`} id="v-faq">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Frequently asked questions</h2>
-            <p className="text-[#587885] max-w-[60ch] mt-[10px]">Clear answers, in plain language. Draft text: have your lawyer review before launch.</p>
+            <p className="text-[#587885] max-w-[60ch] mt-[10px]">Clear answers, in plain language.</p>
             <div className="mt-6 flex flex-col gap-3">
               {FAQS.map((f, i) => (
                 <details key={i} className="bg-white border border-[#0E3E52]/20 rounded-[16px] p-5">
@@ -333,7 +404,7 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* CONTACT SECTION (#v-contact) */}
+        {/* CONTACT SECTION */}
         <section className={`py-11 pb-18 ${activeTab === 'contact' ? '' : 'hidden'}`} id="v-contact">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Contact us</h2>
@@ -358,7 +429,7 @@ export default function DemoPage() {
           </div>
         </section>
 
-        {/* WALLET SECTION (#v-wallet) */}
+        {/* WALLET SECTION */}
         <section className={`py-11 pb-18 ${activeTab === 'wallet' ? '' : 'hidden'}`} id="v-wallet">
           <div className="max-w-[1100px] mx-auto px-5">
             <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">My wallet</h2>
@@ -366,7 +437,7 @@ export default function DemoPage() {
             <div className="grid grid-cols-2 max-md:grid-cols-1 gap-[28px] mt-[26px]">
               <div className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px]">
                 <small className="text-[#587885] font-semibold">Balance</small>
-                <div className="font-['Baloo_2',sans-serif] font-extrabold text-[54px] text-[#1F8E92]">₹{state.bal}</div>
+                <div className="font-['Baloo_2',sans-serif] font-extrabold text-[54px] text-[#1F8E92]">₹{localWallet.bal}</div>
                 <label className="font-semibold text-[14px]">Amount to add (₹)</label>
                 <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" type="number" min="100" value={walletAmt} onChange={e => setWalletAmt(e.target.value)} />
                 <div className="flex gap-[14px] flex-wrap items-center">
@@ -377,7 +448,7 @@ export default function DemoPage() {
               <div className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px]">
                 <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold">Recent activity</h3>
                 <div className="mt-2">
-                  {state.tx.length ? state.tx.slice(-6).reverse().map((t, i) => (
+                  {localWallet.tx.length ? localWallet.tx.slice(-6).reverse().map((t, i) => (
                     <div key={i} className="flex justify-between py-3 border-t border-[#0E3E52]/20 text-[15px]">
                       <span>{t[0]}</span>
                       <b>{t[1]}</b>
@@ -390,7 +461,7 @@ export default function DemoPage() {
         </section>
       </main>
 
-      {/* FOOTER NOTICE / DISCLAIMER */}
+      {/* FOOTER NOTICE */}
       <footer className="bg-[#EAF2F2] border-t border-[#0E3E52]/10 py-6 px-5 mt-12 text-center text-[#587885] text-[13px]">
         <div className="max-w-[1100px] mx-auto">
           Judged promotion. Purchase, posting requirements, eligibility and full terms apply. Wallet and payments in this demo are simulated. © 2026 LuckMyTrip
@@ -409,99 +480,102 @@ export default function DemoPage() {
             {authMode === 'signup' && (
               <>
                 <label className="font-semibold text-[14px]">Full name</label>
-                <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" value={authName} onChange={e => setAuthName(e.target.value)} />
+                <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" value={authName} onChange={e => setAuthName(e.target.value)} placeholder="Enter your full name" />
               </>
             )}
             <label className="font-semibold text-[14px]">Email or mobile</label>
-            <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" value={authEmail} onChange={e => setAuthEmail(e.target.value)} />
+            <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" value={authEmailOrPhone} onChange={e => setAuthEmailOrPhone(e.target.value)} placeholder="Enter email or mobile" />
             <label className="font-semibold text-[14px]">Password</label>
-            <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" type="password" value={authPass} onChange={e => setAuthPass(e.target.value)} />
+            <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" type="password" value={authPass} onChange={e => setAuthPass(e.target.value)} placeholder="Enter password" />
             <div className="flex gap-[14px] flex-wrap items-center mt-2">
-              <button className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer" onClick={() => handleLogin(authMode === 'login')}>{authMode === 'login' ? 'Log in' : 'Create account'}</button>
+              <button 
+                className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer disabled:opacity-50" 
+                disabled={loading}
+                onClick={authMode === 'login' ? handleLoginSubmit : handleSignupSubmit}
+              >
+                {loading ? 'Processing...' : (authMode === 'login' ? 'Log in' : 'Create account')}
+              </button>
               <button className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer" onClick={() => setAuthModal(false)}>Cancel</button>
             </div>
-            <p className="bg-white border-l-4 border-[#52C2C5] rounded-r-[14px] p-4 text-[#587885] text-[14px] mt-4">Demo only: no real account is created.</p>
           </div>
         </div>
       )}
 
-      {/* PAYMENT MODAL */}
+      {/* PAYMENT MODAL WITH OPTION A AUTO-APPLIED COUPON */}
       {payModal && curPay && (
         <div className="fixed inset-0 bg-[#092A38]/60 grid place-items-center z-50">
           <div className="bg-white border-0 rounded-[22px] p-6 w-[min(460px,92vw)] text-[#0E3E52] shadow-xl">
-            <h2 className="font-['Baloo_2',sans-serif] text-[26px] font-bold">Pay ₹{curPay.amt}</h2>
-            <p className="text-[#587885]">{curPay.label}</p>
-            <div className="flex gap-1.5 flex-wrap my-[14px]">
-              {[['upi', 'UPI'], ['card', 'Card'], ['bank', 'Net banking'], ['crypto', 'Crypto'], ...(curPay.kind === 'buy' ? [['wallet', 'Wallet']] : [])].map(m => (
-                <button key={m[0]} className={`font-semibold text-[14px] py-2 px-3.5 rounded-full border border-[#0E3E52]/20 cursor-pointer ${curPay.m === m[0] ? 'bg-[#104A64] text-white border-[#104A64]' : 'bg-[#F3F7F7] text-[#0E3E52]'}`} onClick={() => setCurPay({ ...curPay, m: m[0] })}>
-                  {m[1]}
-                </button>
-              ))}
+            <h2 className="font-['Baloo_2',sans-serif] text-[26px] font-bold">
+              {curPay.kind === 'buy' ? `Checkout: ${curPay.label}` : `Pay ₹{curPay.amt}`}
+            </h2>
+            
+            <div className="my-3 p-4 rounded-[14px] bg-[#F3F7F7] border border-[#0E3E52]/10 flex justify-between items-center">
+              <div>
+                <span className="text-[#587885] text-[13px]">Total Payable Amount</span>
+                <div className="font-['Baloo_2',sans-serif] font-extrabold text-[28px] text-[#104A64]">
+                  {curPay.amt === 0 ? (
+                    <span>₹0 <span className="line-through text-[16px] text-[#587885] font-normal">₹{curPay.baseAmt}</span></span>
+                  ) : (
+                    `₹${curPay.amt}`
+                  )}
+                </div>
+              </div>
+              {curPay.coupon && (
+                <span className="bg-[#52C2C5]/20 text-[#104A64] font-bold text-[12px] px-3 py-1 rounded-full text-right">
+                  🏷️ Admin Coupon '{curPay.coupon}' Auto-Applied!
+                </span>
+              )}
             </div>
 
-            {curPay.m === 'upi' && (
-              <div>
-                <label className="font-semibold text-[14px]">UPI ID</label>
-                <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" placeholder="name@bank" value={curPay.f1 || ''} onChange={e => setCurPay({ ...curPay, f1: e.target.value })} />
-                <div className="flex gap-[14px] flex-wrap items-center mt-2">
-                  <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">GPay</span>
-                  <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">PhonePe</span>
-                  <span className="bg-white border border-[#0E3E52]/20 rounded-full px-3.5 py-1.5 font-semibold text-[14px]">Paytm</span>
+            {/* If price is reduced to 0 via admin coupon */}
+            {curPay.amt === 0 ? (
+              <div className="bg-[#E3F6F7] p-3 rounded-[12px] text-center font-semibold text-[#104A64] text-[14px] my-3">
+                🎉 Product fully covered by admin coupon! No payment needed.
+              </div>
+            ) : (
+              <>
+                <p className="text-[#587885] text-[13px] mb-2">Select payment method</p>
+                <div className="flex gap-1.5 flex-wrap my-[10px]">
+                  {[['upi', 'UPI'], ['card', 'Card'], ['bank', 'Net banking'], ['crypto', 'Crypto'], ...(curPay.kind === 'buy' ? [['wallet', 'Wallet']] : [])].map(m => (
+                    <button key={m[0]} className={`font-semibold text-[14px] py-2 px-3.5 rounded-full border border-[#0E3E52]/20 cursor-pointer ${curPay.m === m[0] ? 'bg-[#104A64] text-white border-[#104A64]' : 'bg-[#F3F7F7] text-[#0E3E52]'}`} onClick={() => setCurPay({ ...curPay, m: m[0] })}>
+                      {m[1]}
+                    </button>
+                  ))}
                 </div>
-              </div>
-            )}
 
-            {curPay.m === 'card' && (
-              <div>
-                <label className="font-semibold text-[14px]">Card number</label>
-                <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" inputMode="numeric" placeholder="1234 5678 9012 3456" value={curPay.f1 || ''} onChange={e => setCurPay({ ...curPay, f1: e.target.value })} />
-                <label className="font-semibold text-[14px]">Name on card</label>
-                <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" />
-                <div className="flex gap-[14px]">
-                  <div className="flex-1"><label className="font-semibold text-[14px]">Expiry</label><input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" placeholder="MM/YY" /></div>
-                  <div className="flex-1"><label className="font-semibold text-[14px]">CVV</label><input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" type="password" placeholder="•••" /></div>
-                </div>
-              </div>
-            )}
+                {curPay.m === 'upi' && (
+                  <div>
+                    <label className="font-semibold text-[14px]">UPI ID</label>
+                    <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" placeholder="name@bank" value={curPay.f1 || ''} onChange={e => setCurPay({ ...curPay, f1: e.target.value })} />
+                  </div>
+                )}
 
-            {curPay.m === 'bank' && (
-              <div>
-                <label className="font-semibold text-[14px]">Choose your bank</label>
-                <select className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]">
-                  <option>HDFC Bank</option>
-                  <option>ICICI Bank</option>
-                  <option>SBI</option>
-                  <option>Axis Bank</option>
-                </select>
-              </div>
-            )}
+                {curPay.m === 'card' && (
+                  <div>
+                    <label className="font-semibold text-[14px]">Card number</label>
+                    <input className="w-full p-3 rounded-[12px] border border-[#0E3E52]/20 bg-[#F3F7F7] text-[#0E3E52] my-[6px]" inputMode="numeric" placeholder="1234 5678 9012 3456" value={curPay.f1 || ''} onChange={e => setCurPay({ ...curPay, f1: e.target.value })} />
+                  </div>
+                )}
 
-            {curPay.m === 'crypto' && (
-              <div>
-                <p className="text-[#587885] my-2">Pay securely with USDC or USDT on Polygon/Ethereum network.</p>
-              </div>
-            )}
-
-            {curPay.m === 'wallet' && (
-              <div>
-                <p className="text-[#587885] my-2">Current wallet balance: <b>₹{state.bal}</b></p>
-              </div>
+                {curPay.m === 'wallet' && (
+                  <div>
+                    <p className="text-[#587885] my-2">Current wallet balance: <b>₹{localWallet.bal}</b></p>
+                  </div>
+                )}
+              </>
             )}
 
             <div className="flex gap-[14px] flex-wrap items-center mt-5">
-              <button className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer" onClick={executePayment}>Pay ₹{curPay.amt}</button>
+              <button className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer" onClick={executePayment}>
+                {curPay.amt === 0 ? 'Confirm Free Order' : `Pay ₹{curPay.amt}`}
+              </button>
               <button className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer" onClick={() => setPayModal(false)}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* TOAST NOTIFICATION */}
-      {toastMsg && (
-        <div className="fixed bottom-6 right-6 bg-[#0E3E52] text-white py-3 px-5 rounded-full shadow-lg font-semibold text-[14px] z-50 animate-bounce">
-          {toastMsg}
-        </div>
-      )}
-    </div>
-  );
+       {/* TOAST NOTIFICATION - Handled via react-hot-toast */}
+ </div>
+);
 }

@@ -23,6 +23,8 @@ import SpinLuck from './pages/dashboard/home/SpinLuck';
 import DreamTrip from './pages/dashboard/explore/DreamTrip';
 import TripInfo from './pages/dashboard/explore/TripInfo';
 import GoldenWinner from './pages/dashboard/explore/GoldenWinner';
+import Coupon from './pages/dashboard/products/Coupon';
+import Product from './pages/dashboard/products/Product';
 import SuperAdmin from './pages/dashboard/users/SuperAdmin';
 import Admin from './pages/dashboard/users/Admin';
 import ContentCreator from './pages/dashboard/users/Content-creator';
@@ -148,6 +150,19 @@ if (!isInitialized) {
           element={
             user && ["content-creator", "admin", "superadmin"].includes(user.role?.toLowerCase())
               ? (<Ticket />)
+              : (<Navigate to="/login" />)
+          } />
+          {/* NEW PRODUCT & COUPON ADMIN ROUTES */}
+        <Route path="/dashboard/products/coupon"
+          element={
+            user && ["admin", "superadmin"].includes(user.role?.toLowerCase())
+              ? (<Coupon />)
+              : (<Navigate to="/login" />)
+          } />
+        <Route path="/dashboard/products/product"
+          element={
+            user && ["admin", "superadmin"].includes(user.role?.toLowerCase())
+              ? (<Product />)
               : (<Navigate to="/login" />)
           } />
         <Route path="/dashboard"
