@@ -56,7 +56,7 @@ const LoginPage = () => {
         if (['admin', 'superadmin', 'content-creator'].includes(role)) {
           navigate('/dashboard', { replace: true }); // Admins go to dashboard
         } else {
-          navigate('/', { replace: true }); // Regular clients go to homepage /
+          navigate('/demo', { replace: true }); // Regular clients go to homepage /
         }
       })
       .catch((err) => {
