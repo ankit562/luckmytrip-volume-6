@@ -18,11 +18,19 @@ function CreateProductForm({ onCancel, onSubmit, initialData, coupons }) {
     image: null,
   });
 
+  // State to hold image preview (either existing server image or newly uploaded local file preview)
+  const [imagePreview, setImagePreview] = useState(initialData?.image || null);
+
   const handleChange = (e) => {
     const { name, value, files, type } = e.target;
-    setForm((prev) =>
-      type === "file" ? { ...prev, [name]: files[0] } : { ...prev, [name]: value }
-    );
+    if (type === "file" && files && files[0]) {
+      const file = files[0];
+      setForm((prev) => ({ ...prev, image: file }));
+      // Create a temporary object URL for local image preview
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e) => {
@@ -100,12 +108,27 @@ function CreateProductForm({ onCancel, onSubmit, initialData, coupons }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+        
+        {/* Existing Image Thumbnail or New File Preview */}
+        {imagePreview && (
+          <div className="mb-2 flex items-center gap-3">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="h-16 w-16 object-cover rounded border border-gray-300 shadow-sm" 
+            />
+            <span className="text-xs text-gray-500">
+              {form.image instanceof File ? "New selected image" : "Current product image"}
+            </span>
+          </div>
+        )}
+
         <input
           name="image"
           type="file"
           accept="image/*"
           onChange={handleChange}
-          className="w-full"
+          className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
           required={!initialData}
         />
       </div>

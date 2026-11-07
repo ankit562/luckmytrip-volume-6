@@ -18,15 +18,15 @@ const LoginPage = () => {
 
   // Redirect if user is already logged in (only when component mounts)
   useEffect(() => {
-   
+
     if (user && user.role) {
       const role = user.role.toLowerCase();
-     
+
       if (role === 'client') {
-        
+
         navigate('/', { replace: true });
       } else if (['admin', 'superadmin', 'content-creator'].includes(role)) {
-       
+
         navigate('/dashboard', { replace: true });
       }
     }
@@ -41,21 +41,22 @@ const LoginPage = () => {
     }
   }, [error]);
 
+  // Inside your LoginPage.jsx handleSubmit function:
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(loginUser({ email, password }))
       .unwrap()
       .then((userData) => {
-        
         setEmail('');
         setPassword('');
-        
-        // Handle redirection after successful login
+
         const role = userData.role?.toLowerCase();
-        if (role === 'client') {
-          navigate('/', { replace: true });
-        } else if (['admin', 'superadmin', 'content-creator'].includes(role)) {
-          navigate('/dashboard', { replace: true });
+
+        // Strict role-based routing
+        if (['admin', 'superadmin', 'content-creator'].includes(role)) {
+          navigate('/dashboard', { replace: true }); // Admins go to dashboard
+        } else {
+          navigate('/', { replace: true }); // Regular clients go to homepage /
         }
       })
       .catch((err) => {

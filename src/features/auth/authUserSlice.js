@@ -1,5 +1,4 @@
-
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import authAPI from './authUserAPI';
 
 export const signupUser = createAsyncThunk('auth/signupUser', async (userData) => {
@@ -29,17 +28,18 @@ export const verifyOtpUser = createAsyncThunk('auth/verifyOtpUser', async (otpDa
 export const getAllProfile = createAsyncThunk('auth/getAllProfile', async () => {
   const response = await authAPI.getAllProfile();
   return response.data;
-})
+});
 
 export const deleteUser = createAsyncThunk('auth/deleteUser', async (id) => {
   const response = await authAPI.deleteUser(id);
   return response.data;
-})
+});
 
 export const UpdateProfile = createAsyncThunk('auth/UpdateProfile', async ({ id, userData }) => {
   const response = await authAPI.UpdateProfile(id, userData);
   return response.data;
 });
+
 export const searchUser = createAsyncThunk('auth/searchUser', async (query) => {
   const response = await authAPI.searchUser(query);
   return response.data;
@@ -69,10 +69,9 @@ export const saveBillingInfoThunk = createAsyncThunk(
   }
 );
 
-
 const authSlice = createSlice({
   name: 'auth',
- initialState: {
+  initialState: {
     user: null,
     loading: false,
     users: [],
@@ -117,24 +116,43 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-  state.loading = false;
-  state.user = action.payload;
-  state.isAuthenticated = true;
-  state.isInitialized = true;
-  if (action.payload?.accessToken) {
-    localStorage.setItem("accessToken", action.payload.accessToken);
-  }
-})
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+        state.isInitialized = true;
+        if (action.payload?.accessToken) {
+          localStorage.setItem("accessToken", action.payload.accessToken);
+        }
+      })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
         state.isInitialized = true;
       })
+
+      // ================= FIX LOGOUT STATE RESET =================
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
+        state.billingInfo = null;
         state.isAuthenticated = false;
         state.isInitialized = true;
+        state.loading = false;
+        // Clean up stored tokens so refresh doesn't trigger auto-login
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
       })
+      .addCase(logoutUser.rejected, (state) => {
+        // Even if network fails, wipe client session
+        state.user = null;
+        state.billingInfo = null;
+        state.isAuthenticated = false;
+        state.isInitialized = true;
+        state.loading = false;
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
+      })
+      // ==========================================================
+
       .addCase(fetchProfile.pending, (state) => {
         state.loading = true;
       })
@@ -149,9 +167,13 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.isInitialized = true;
-        // Don't set error for profile fetch failures as it's expected when not logged in
-        if (action.error.message !== 'Request failed with status code 401' &&
-          action.error.message !== 'Request failed with status code 500') {
+        // Remove token on failed profile fetch
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("token");
+        if (
+          action.error.message !== 'Request failed with status code 401' &&
+          action.error.message !== 'Request failed with status code 500'
+        ) {
           state.error = action.error.message;
         }
       })
@@ -232,7 +254,7 @@ const authSlice = createSlice({
       })
       .addCase(saveBillingInfoThunk.fulfilled, (state, action) => {
         state.billingLoading = false;
-        state.billingInfo = action.payload;
+        state.billingInfo = action.payload?.billingInfo || action.payload;
       })
       .addCase(saveBillingInfoThunk.rejected, (state, action) => {
         state.billingLoading = false;
@@ -241,5 +263,5 @@ const authSlice = createSlice({
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, forceInitialization } = authSlice.actions;
 export default authSlice.reducer;
