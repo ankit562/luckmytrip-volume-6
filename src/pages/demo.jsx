@@ -2,7 +2,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { signupUser, loginUser, logoutUser } from '../features/auth/authUserSlice';
-import { setDubaiQtys, setThailandQtys, setGoaQtys } from '../features/addtocart/addtocartSlice';
+import { setDubaiQtys, setThailandQtys } from '../features/addtocart/addtocartSlice';
 import Footer from '../components/commonComponent/Footer';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -24,16 +24,15 @@ const FOOTER_SLIDES = [
   { src: '/images/dubaifooter.png', alt: 'Dubai Journey', destination: 'to Dubai' },
 ];
 
+// Only Dubai and Thailand for the hero carousel
 const rightImages = [
-  "/images/MaskGroup2.png",
   "/images/MaskGroup2.png",
   "/images/MaskGroup2.png"
 ];
 
 const destinations = [
   "DUBAI",
-  "THAILAND",
-  "GOA"
+  "THAILAND"
 ];
 
 export default function DemoPage() {
@@ -57,7 +56,6 @@ export default function DemoPage() {
 
   const dubaiQty = useSelector(state => state.addtocart?.cartItems?.dubaiQty || 0);
   const thailandQty = useSelector(state => state.addtocart?.cartItems?.thailandQty || 0);
-  const goaQty = useSelector(state => state.addtocart?.cartItems?.goaQty || 0);
 
   const handleSelectTrip = () => {
     const selected = destinations[carouselIndex];
@@ -70,11 +68,6 @@ export default function DemoPage() {
     if (selected === "THAILAND") {
       dispatch(setThailandQtys(thailandQty > 0 ? thailandQty + 1 : 1));
       navigate("/ticket", { state: { fromthailand1: true } });
-    }
-
-    if (selected === "GOA") {
-      dispatch(setGoaQtys(goaQty > 0 ? goaQty + 1 : 1));
-      navigate("/ticket", { state: { fromgoa1: true } });
     }
 
     toast.success("Redirecting to Ticket Page");
@@ -376,7 +369,7 @@ export default function DemoPage() {
                 </div>
               </div>
 
-              {/* RIGHT SIDE: Perfectly aligned top scale */}
+              {/* RIGHT SIDE: Dubai and Thailand Carousel */}
               <div className="w-full flex flex-col py-0 items-start">
                 <div className="relative mb-5 w-full">
                   <div className="overflow-hidden w-full rounded-[20px]">
