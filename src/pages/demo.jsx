@@ -449,7 +449,7 @@ export default function DemoPage() {
       </main>
 
       {/* CONTINUOUS INFINITE HORIZONTAL SLIDER ABOVE FOOTER */}
-      <section className="relative w-full h-[260px] md:h-[320px] overflow-hidden select-none">
+      <section className="relative w-full h-[180px] md:h-[260px] overflow-hidden select-none">
         <div
           onTransitionEnd={handleSlideTransitionEnd}
           className={`flex w-full h-full ${
