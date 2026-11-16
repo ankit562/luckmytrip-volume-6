@@ -2,6 +2,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { signupUser, loginUser, logoutUser } from '../features/auth/authUserSlice';
+import { setDubaiQtys, setThailandQtys, setGoaQtys } from '../features/addtocart/addtocartSlice';
+import Footer from '../components/commonComponent/Footer';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -15,6 +17,25 @@ const FAQS = [
   ["Where can I read the full terms?", "The complete terms, eligibility rules and judging criteria are linked at checkout and in the footer."]
 ];
 
+// Seamless infinite carousel track for the footer banner
+const FOOTER_SLIDES = [
+  { src: '/images/dubaifooter.png', alt: 'Dubai Journey', destination: 'to Dubai' },
+  { src: '/images/thailandfooter.png', alt: 'Thailand Journey', destination: 'to Thailand' },
+  { src: '/images/dubaifooter.png', alt: 'Dubai Journey', destination: 'to Dubai' },
+];
+
+const rightImages = [
+  "/images/MaskGroup2.png",
+  "/images/MaskGroup2.png",
+  "/images/MaskGroup2.png"
+];
+
+const destinations = [
+  "DUBAI",
+  "THAILAND",
+  "GOA"
+];
+
 export default function DemoPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -24,26 +45,80 @@ export default function DemoPage() {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
 
+  // Hero Right-Side Carousel State
+  const [carouselIndex, setCarouselIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCarouselIndex(prev => (prev + 1) % rightImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const dubaiQty = useSelector(state => state.addtocart?.cartItems?.dubaiQty || 0);
+  const thailandQty = useSelector(state => state.addtocart?.cartItems?.thailandQty || 0);
+  const goaQty = useSelector(state => state.addtocart?.cartItems?.goaQty || 0);
+
+  const handleSelectTrip = () => {
+    const selected = destinations[carouselIndex];
+
+    if (selected === "DUBAI") {
+      dispatch(setDubaiQtys(dubaiQty > 0 ? dubaiQty + 1 : 1));
+      navigate("/ticket", { state: { fromdubai1: true } });
+    }
+
+    if (selected === "THAILAND") {
+      dispatch(setThailandQtys(thailandQty > 0 ? thailandQty + 1 : 1));
+      navigate("/ticket", { state: { fromthailand1: true } });
+    }
+
+    if (selected === "GOA") {
+      dispatch(setGoaQtys(goaQty > 0 ? goaQty + 1 : 1));
+      navigate("/ticket", { state: { fromgoa1: true } });
+    }
+
+    toast.success("Redirecting to Ticket Page");
+  };
+
+  // Footer banner slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(true);
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setIsTransitioning(true);
+      setCurrentSlide((prev) => prev + 1);
+    }, 3500);
+    return () => clearInterval(slideInterval);
+  }, []);
+
+  const handleSlideTransitionEnd = () => {
+    if (currentSlide === FOOTER_SLIDES.length - 1) {
+      setIsTransitioning(false);
+      setCurrentSlide(0);
+    }
+  };
+
   // Profile dropdown toggle state
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   // 1. Ticket quantities from Redux
   const cartItems = useSelector(state => state.addtocart?.cartItems || {});
   const {
-    dubaiQty = 0,
-    thailandQty = 0,
+    dubaiQty: dQty = 0,
+    thailandQty: tQty = 0,
     goldenWinnerQty = 0,
     giftQty = 0,
-    goaQty = 0,
+    goaQty: gQty = 0,
     jackpotQty = 0,
   } = cartItems;
 
   const ticketsCount = (
-    (dubaiQty > 0 ? 1 : 0) +
-    (thailandQty > 0 ? 1 : 0) +
+    (dQty > 0 ? 1 : 0) +
+    (tQty > 0 ? 1 : 0) +
     (goldenWinnerQty > 0 ? 1 : 0) +
     (giftQty > 0 ? 1 : 0) +
-    (goaQty > 0 ? 1 : 0) +
+    (gQty > 0 ? 1 : 0) +
     (jackpotQty > 0 ? 1 : 0)
   );
 
@@ -66,10 +141,9 @@ export default function DemoPage() {
     return () => window.removeEventListener('storage', updateShopCount);
   }, []);
 
-  // Total combined cart item count
   const totalCartCount = ticketsCount + shopCount;
 
-  // Fetch shop products dynamically with safe array fallback
+  // Fetch shop products dynamically
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -85,24 +159,6 @@ export default function DemoPage() {
     };
     fetchProducts();
   }, []);
-
-  const [localWallet] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('lmt_wallet')) || { bal: 0, tx: [] };
-    } catch {
-      return { bal: 0, tx: [] };
-    }
-  });
-
-  const [authModal, setAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState('login');
-  const [authName, setAuthName] = useState('');
-  const [authEmailOrPhone, setAuthEmailOrPhone] = useState('');
-  const [authPass, setAuthPass] = useState('');
-
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactMsg, setContactMsg] = useState('');
 
   useEffect(() => {
     const handleHash = () => {
@@ -176,12 +232,16 @@ export default function DemoPage() {
 
   return (
     <div className="bg-[#F3F7F7] text-[#0E3E52] font-['Work_Sans',sans-serif] min-h-screen box-border antialiased flex flex-col justify-between">
-      <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       <header className="sticky top-0 z-20 bg-[#F3F7F7] border-b border-[#0E3E52]/20">
         <div className="max-w-[1100px] mx-auto px-5 py-3.5 flex flex-wrap items-center justify-between gap-y-3">
-          <a className="font-['Baloo_2',sans-serif] font-extrabold text-[23px] text-inherit no-underline" href="#home">
-            Luck<b className="text-[#1F8E92]">My</b>Trip<i className="text-[#ED363E] not-italic">.</i>
+          <a className="flex items-center no-underline" href="#home">
+            <img 
+              src="/images/luckmytrip-logo.png" 
+              alt="LuckMyTrip" 
+              className="h-12 w-auto object-contain" 
+            />
           </a>
 
           <div className="flex items-center gap-[22px] max-lg:w-full max-lg:order-3 max-lg:justify-between flex-wrap lg:ml-auto">
@@ -194,7 +254,6 @@ export default function DemoPage() {
               <a href="#contact" className="no-underline font-semibold text-[15px] py-0.5 border-b-2 border-transparent hover:border-[#1F8E92]">Contact</a>
             </nav>
 
-            {/* Profile Dropdown & Add-to-Cart Icons */}
             <div className="flex gap-3 items-center relative">
               <div className="relative">
                 <button 
@@ -269,7 +328,6 @@ export default function DemoPage() {
                 )}
               </div>
 
-              {/* Add to Cart Icon with Dynamic Count Badge */}
               <button 
                 onClick={() => navigate('/addtocart')} 
                 className="bg-transparent border-0 cursor-pointer p-1 text-[#0E3E52] flex items-center relative hover:opacity-80 transition-opacity"
@@ -290,47 +348,103 @@ export default function DemoPage() {
       </header>
 
       <main className="flex-1">
-        <section className={`py-11 pb-18 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
+        <section className={`py-11 pb-12 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
           <div className="max-w-[1100px] mx-auto px-5">
-            <div className="grid grid-cols-[1.1fr_0.9fr] max-md:grid-cols-1 gap-10 items-center">
+            {/* HERO SECTION GRID (Aligned at the top with items-start) */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
               <div>
-                <span className="inline-block bg-[#FFCD32] text-[#3a2d00] font-bold text-[13px] rounded-full px-3 py-1">Judged weekly. Not a lottery.</span>
-                <h1 className="font-['Baloo_2',sans-serif] text-[50px] max-md:text-[36px] font-extrabold tracking-[-0.5px] leading-[1.1] mt-4">
-                  Shop travel gear. Share your story. <span className="text-[#1F8E92]">Get selected for a trip.</span>
-                </h1>
+                <span className="inline-block bg-[#FFCD32] text-[#3a2d00] font-bold text-[13px] rounded-full px-4 py-1.5 mb-3">Shop, Win, Fly.</span>
+                
+                <div className="flex flex-col gap-3 mt-1 w-full max-w-[460px]">
+                  <div className="bg-[#7b1fa2] text-white font-['Baloo_2',sans-serif] text-[30px] max-md:text-[22px] font-extrabold py-3 px-6 rounded-xl shadow-md w-full text-left">
+                    Shop travel gear.
+                  </div>
+                  <div className="bg-[#00a59b] text-white font-['Baloo_2',sans-serif] text-[30px] max-md:text-[22px] font-extrabold py-3 px-6 rounded-xl shadow-md w-full text-left">
+                    Share your story.
+                  </div>
+                  <div className="bg-[#104a64] text-white font-['Baloo_2',sans-serif] text-[30px] max-md:text-[22px] font-extrabold py-3 px-6 rounded-xl shadow-md w-full text-left">
+                    Get selected for a trip.
+                  </div>
+                </div>
+
                 <p className="text-[#587885] max-w-[60ch] text-[18px] my-[18px]">
-                  Buy any LuckMyTrip product, post your creative story, and our panel picks one standout story every week for a trip to Dubai or Thailand.
+                  Buy our products, post your creative story, and the best story will get weekly trip to Dubai or Thailand.
                 </p>
                 <div className="flex gap-[14px] flex-wrap items-center">
                   <a className="border-0 rounded-full py-[13px] px-[26px] bg-[#ED363E] text-white font-bold text-[15px] cursor-pointer no-underline inline-block" href="#shop">Shop the collection</a>
                   <a className="rounded-full py-[13px] px-[26px] bg-transparent text-[#0E3E52] border-2 border-[#0E3E52] font-bold text-[15px] cursor-pointer no-underline inline-block" href="#how">See how it works</a>
                 </div>
               </div>
+
+              {/* RIGHT SIDE: Perfectly aligned top scale */}
+              <div className="w-full flex flex-col py-0 items-start">
+                <div className="relative mb-5 w-full">
+                  <div className="overflow-hidden w-full rounded-[20px]">
+                    <div className="flex transition-transform duration-700" style={{ transform: `translateX(-${carouselIndex * 100}%)` }}>
+                      {rightImages.map((src, i) => (
+                        <img key={i} src={src} className="w-full flex-shrink-0 object-cover rounded-[20px]" alt={`Right ${i + 1}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:mb-6 w-full">
+                  <div className="font-open-sans font-extrabold">
+                    <span className="block text-[#0d3559] text-xl lg:text-[60px] leading-none">
+                      FLY TO
+                    </span>
+                    <span className="block text-[#f6b21d] text-xl lg:text-[38px] md:mt-3">
+                      {destinations[carouselIndex]}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleSelectTrip}
+                    className="lg:mt-7 mt-4 bg-[#8ac541] hover:bg-[#3d660b] text-white lg:py-5 lg:px-6 py-2 px-3 text-sm lg:text-2xl rounded-full shadow-lg transition font-bold cursor-pointer flex items-center justify-center"
+                  >
+                    ➜
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* PLANE DIVIDER IMAGE */}
+            <div className="mt-14 mb-2 w-full flex items-center justify-center">
+              <img 
+                src="/images/plane-divider.svg" 
+                alt="Plane flight divider" 
+                className="w-full max-w-[1100px] h-auto object-contain opacity-90" 
+              />
             </div>
 
             {/* SHOP TRAVEL GEAR */}
-            <div className="mt-16 scroll-mt-24" id="shop">
+            <div className="mt-2 scroll-mt-24" id="shop">
               <h2 className="font-['Baloo_2',sans-serif] text-[34px] font-bold">Shop travel gear</h2>
-              <p className="text-[#587885] max-w-[60ch] mt-[10px]">Premium everyday travel merchandise, with an extra reason to share your journey.</p>
+              <div className="text-[#587885] mt-[10px] space-y-1 text-[16px]">
+                <p>Choose any LuckMyTrip merchandise from our store. Post a creative story and tag us - <span className="font-semibold text-[#1F8E92]">@LuckMyTrip</span></p>
+                <p>Our panel reviews the stories and select one winner each week.</p>
+              </div>
               
               {productsLoading ? (
                 <div className="py-12 text-center text-gray-500 font-semibold">Loading products...</div>
               ) : products.length === 0 ? (
                 <div className="py-12 text-center text-gray-500 font-semibold">No products found in the database.</div>
               ) : (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-4 mt-[26px]">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-5 mt-[26px]">
                   {products.map((p, i) => (
-                    <div key={p._id || i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] p-[18px] flex flex-col gap-[6px] relative">
-                      <div className="h-[120px] rounded-[14px] overflow-hidden flex items-center justify-center p-2 bg-[#E3F6F7]">
-                        <img src={p.image} alt={p.title} className="w-full h-full object-contain" />
+                    <div key={p._id || i} className="bg-white border border-[#0E3E52]/20 rounded-[20px] overflow-hidden flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-full h-[170px] bg-gray-50 overflow-hidden flex items-center justify-center">
+                        <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
                       </div>
-                      <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold mt-[6px]">{p.title}</h3>
-                      <p className="text-[#587885] text-[14px] flex-1">{p.description}</p>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="font-['Baloo_2',sans-serif] font-bold text-[20px]">
-                          ₹{p.price}
-                        </span>
-                        <button className="border-0 rounded-full py-2 px-4 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer" onClick={() => buyProduct(p)}>Buy</button>
+                      <div className="p-[18px] flex flex-col flex-1 gap-[6px]">
+                        <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold mt-[2px]">{p.title}</h3>
+                        <p className="text-[#587885] text-[14px] flex-1">{p.description}</p>
+                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-100">
+                          <span className="font-['Baloo_2',sans-serif] font-bold text-[20px]">
+                            ₹{p.price}
+                          </span>
+                          <button className="border-0 rounded-full py-2 px-5 bg-[#104A64] text-white font-bold text-[14px] cursor-pointer hover:opacity-90" onClick={() => buyProduct(p)}>Buy</button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -341,11 +455,38 @@ export default function DemoPage() {
         </section>
       </main>
 
-      <footer className="bg-[#EAF2F2] border-t border-[#0E3E52]/10 py-6 px-5 mt-12 text-center text-[#587885] text-[13px]">
-        <div className="max-w-[1100px] mx-auto">
-          Judged promotion. Purchase, posting requirements, eligibility and full terms apply. © 2026 LuckMyTrip
+      {/* CONTINUOUS INFINITE HORIZONTAL SLIDER ABOVE FOOTER */}
+      <section className="relative w-full h-[260px] md:h-[320px] overflow-hidden select-none">
+        <div
+          onTransitionEnd={handleSlideTransitionEnd}
+          className={`flex w-full h-full ${
+            isTransitioning ? 'transition-transform duration-1000 ease-in-out' : ''
+          }`}
+          style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+        >
+          {FOOTER_SLIDES.map((slide, idx) => (
+            <div key={idx} className="relative w-full h-full flex-shrink-0">
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/25 pointer-events-none" />
+
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-start pt-6 md:pt-8 px-4 text-center">
+                <h2 className="font-['Caveat',cursive] text-white text-[44px] md:text-[60px] font-bold leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.7)] tracking-wide">
+                  Join the Journey
+                </h2>
+                <span className="font-['Caveat',cursive] text-[#FFCD32] text-[38px] md:text-[52px] font-bold leading-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.75)] mt-0.5">
+                  {slide.destination}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
-      </footer>
+      </section>
+
+      <Footer />
     </div>
   );
 }
