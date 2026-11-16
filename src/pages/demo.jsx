@@ -449,7 +449,7 @@ export default function DemoPage() {
       </main>
 
       {/* CONTINUOUS INFINITE HORIZONTAL SLIDER ABOVE FOOTER */}
-      <section className="relative w-full h-[180px] md:h-[260px] overflow-hidden select-none">
+       <section className="relative w-full h-[110px] md:h-[160px] overflow-hidden select-none">
         <div
           onTransitionEnd={handleSlideTransitionEnd}
           className={`flex w-full h-full ${
@@ -466,11 +466,11 @@ export default function DemoPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/15 to-black/25 pointer-events-none" />
 
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-start pt-6 md:pt-8 px-4 text-center">
-                <h2 className="font-['Caveat',cursive] text-white text-[44px] md:text-[60px] font-bold leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.7)] tracking-wide">
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-start pt-3 md:pt-5 px-4 text-center">
+                <h2 className="font-['Caveat',cursive] text-white text-[38px] md:text-[52px] font-bold leading-none drop-shadow-[0_3px_10px_rgba(0,0,0,0.7)] tracking-wide">
                   Join the Journey
                 </h2>
-                <span className="font-['Caveat',cursive] text-[#FFCD32] text-[38px] md:text-[52px] font-bold leading-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.75)] mt-0.5">
+                <span className="font-['Caveat',cursive] text-[#FFCD32] text-[32px] md:text-[44px] font-bold leading-tight drop-shadow-[0_3px_10px_rgba(0,0,0,0.75)] mt-0.5">
                   {slide.destination}
                 </span>
               </div>
