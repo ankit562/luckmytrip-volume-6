@@ -232,10 +232,10 @@ export default function DemoPage() {
         <div className="max-w-[1100px] mx-auto px-4 sm:px-5 py-2.5 lg:py-3.5 flex items-center justify-between">
           {/* Brand Logo */}
           <a className="flex items-center no-underline shrink-0" href="#home" onClick={() => setMobileMenuOpen(false)}>
-            <img 
-              src="/images/luckmytrip-logo.png" 
-              alt="LuckMyTrip" 
-              className="h-10 lg:h-12 w-auto object-contain" 
+            <img
+              src="/images/luckmytrip-logo.png"
+              alt="LuckMyTrip"
+              className="h-10 lg:h-12 w-auto object-contain"
             />
           </a>
 
@@ -255,11 +255,11 @@ export default function DemoPage() {
             <div className="flex gap-2.5 sm:gap-3 items-center relative">
               {/* Profile Dropdown */}
               <div className="relative">
-                <button 
+                <button
                   onClick={() => {
                     setShowProfileMenu(!showProfileMenu);
                     setMobileMenuOpen(false);
-                  }} 
+                  }}
                   className="bg-transparent border-0 cursor-pointer p-1.5 text-[#0E3E52] flex items-center hover:opacity-80 transition-opacity"
                   title="Profile"
                   aria-label="Profile"
@@ -276,7 +276,7 @@ export default function DemoPage() {
                         <div className="px-3 py-2 text-[13px] font-bold text-[#0E3E52] border-b border-gray-100">
                           Hello, {user.fullName || user.name || 'Traveler'}!
                         </div>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowProfileMenu(false);
                             navigate('/orders');
@@ -285,7 +285,7 @@ export default function DemoPage() {
                         >
                           My Orders
                         </button>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowProfileMenu(false);
                             handleLogoutClick();
@@ -297,7 +297,7 @@ export default function DemoPage() {
                       </>
                     ) : (
                       <>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowProfileMenu(false);
                             navigate('/login');
@@ -306,7 +306,7 @@ export default function DemoPage() {
                         >
                           Log In
                         </button>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowProfileMenu(false);
                             navigate('/login', { state: { mode: 'signup' } });
@@ -315,7 +315,7 @@ export default function DemoPage() {
                         >
                           Sign Up
                         </button>
-                        <button 
+                        <button
                           onClick={() => {
                             setShowProfileMenu(false);
                             toast.error('Please log in to view orders');
@@ -332,11 +332,11 @@ export default function DemoPage() {
               </div>
 
               {/* Cart Button */}
-              <button 
+              <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   navigate('/addtocart');
-                }} 
+                }}
                 className="bg-transparent border-0 cursor-pointer p-1.5 text-[#0E3E52] flex items-center relative hover:opacity-80 transition-opacity"
                 title="Shopping Cart"
                 aria-label="Shopping Cart"
@@ -432,7 +432,7 @@ export default function DemoPage() {
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
               <div>
                 <span className="inline-block bg-[#FFCD32] text-[#3a2d00] font-bold text-[13px] rounded-full px-4 py-1.5 mb-3">Shop, Win, Fly.</span>
-                
+
                 <div className="flex flex-col gap-3 mt-1 w-full max-w-[460px]">
                   <div className="bg-[#7b1fa2] text-white font-['Baloo_2',sans-serif] text-[30px] max-md:text-[22px] font-extrabold py-3 px-6 rounded-xl shadow-md w-full text-left">
                     Shop travel gear.
@@ -488,10 +488,10 @@ export default function DemoPage() {
 
             {/* PLANE DIVIDER IMAGE */}
             <div className="mt-14 mb-2 w-full flex items-center justify-center">
-              <img 
-                src="/images/plane-divider.svg" 
-                alt="Plane flight divider" 
-                className="w-full max-w-[1100px] h-auto object-contain opacity-90" 
+              <img
+                src="/images/plane-divider.svg"
+                alt="Plane flight divider"
+                className="w-full max-w-[1100px] h-auto object-contain opacity-90"
               />
             </div>
 
@@ -502,7 +502,7 @@ export default function DemoPage() {
                 <p>Choose any LuckMyTrip merchandise from our store. Post a creative story and tag us - <span className="font-semibold text-[#1F8E92]">@LuckMyTrip</span></p>
                 <p>Our panel reviews the stories and select one winner each week.</p>
               </div>
-              
+
               {productsLoading ? (
                 <div className="py-12 text-center text-gray-500 font-semibold">Loading products...</div>
               ) : products.length === 0 ? (
@@ -528,6 +528,53 @@ export default function DemoPage() {
                   ))}
                 </div>
               )}
+
+              {/* GENDER-BASED SPECIAL OFFER CARD (Defaults to Golden Ticket when logged out) */}
+              {(() => {
+                const genderValue = (user?.gender || user?.user?.gender || '').toString().trim().toLowerCase();
+                const isFemale = Boolean(user) && (genderValue === 'female' || genderValue === 'f');
+
+                const offerConfig = isFemale
+                  ? {
+                    title: 'Pink Ticket Offer',
+                    message: 'buy 4 product to get pink ticket',
+                    image: '/images/luckmytrip-logo.png',
+                    badge: 'Women Special',
+                    badgeClass: 'bg-pink-100 text-pink-700',
+                  }
+                  : {
+                    title: 'Golden Ticket Offer',
+                    message: 'buy 2 product for 4 golden ticket',
+                    image: '/images/luckmytrip-logo.png',
+                    badge: 'Men Offer',
+                    badgeClass: 'bg-amber-100 text-amber-800',
+                  };
+
+                return (
+                  <div className="mt-6 w-full max-w-[260px]">
+                    <div className="bg-white border border-[#0E3E52]/20 rounded-[20px] overflow-hidden flex flex-col relative shadow-sm hover:shadow-md transition-shadow">
+                      <span className={`absolute top-3 left-3 z-10 text-[11px] font-bold px-2.5 py-1 rounded-full ${offerConfig.badgeClass}`}>
+                        {offerConfig.badge}
+                      </span>
+                      <div className="w-full h-[170px] bg-gray-50 overflow-hidden flex items-center justify-center">
+                        <img
+                          src={offerConfig.image}
+                          alt={offerConfig.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-[18px] flex flex-col flex-1 gap-[6px]">
+                        <h3 className="font-['Baloo_2',sans-serif] text-[20px] font-bold mt-[2px]">
+                          {offerConfig.title}
+                        </h3>
+                        <p className="text-[#0E3E52] font-semibold text-[15px] flex-1">
+                          {offerConfig.message}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </section>
@@ -537,9 +584,8 @@ export default function DemoPage() {
       <section className="relative w-full h-[110px] md:h-[160px] overflow-hidden select-none">
         <div
           onTransitionEnd={handleSlideTransitionEnd}
-          className={`flex w-full h-full ${
-            isTransitioning ? 'transition-transform duration-1000 ease-in-out' : ''
-          }`}
+          className={`flex w-full h-full ${isTransitioning ? 'transition-transform duration-1000 ease-in-out' : ''
+            }`}
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
         >
           {FOOTER_SLIDES.map((slide, idx) => (
