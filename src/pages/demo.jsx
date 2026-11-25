@@ -43,6 +43,7 @@ export default function DemoPage() {
   const [activeTab, setActiveTab] = useState('home');
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Hero Right-Side Carousel State
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -228,17 +229,20 @@ export default function DemoPage() {
       <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Caveat:wght@700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
       <header className="sticky top-0 z-20 bg-[#F3F7F7] border-b border-[#0E3E52]/20">
-        <div className="max-w-[1100px] mx-auto px-5 py-3.5 flex flex-wrap items-center justify-between gap-y-3">
-          <a className="flex items-center no-underline" href="#home">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-5 py-2.5 lg:py-3.5 flex items-center justify-between">
+          {/* Brand Logo */}
+          <a className="flex items-center no-underline shrink-0" href="#home" onClick={() => setMobileMenuOpen(false)}>
             <img 
               src="/images/luckmytrip-logo.png" 
               alt="LuckMyTrip" 
-              className="h-12 w-auto object-contain" 
+              className="h-10 lg:h-12 w-auto object-contain" 
             />
           </a>
 
-          <div className="flex items-center gap-[22px] max-lg:w-full max-lg:order-3 max-lg:justify-between flex-wrap lg:ml-auto">
-            <nav className="flex gap-[22px] max-md:gap-x-[12px] flex-wrap items-center">
+          {/* Desktop Navigation + Action Icons */}
+          <div className="flex items-center gap-3 lg:gap-[22px] lg:ml-auto">
+            {/* Desktop Nav Links (unchanged on lg and above) */}
+            <nav className="hidden lg:flex gap-[22px] items-center">
               <a href="#home" className={`no-underline font-semibold text-[15px] py-0.5 border-b-2 ${activeTab === 'home' ? 'border-[#1F8E92]' : 'border-transparent'}`}>Home</a>
               <a href="#how" className="no-underline font-semibold text-[15px] py-0.5 border-b-2 border-transparent hover:border-[#1F8E92]">How it works</a>
               <a href="#shop" className="no-underline font-semibold text-[15px] py-0.5 border-b-2 border-transparent hover:border-[#1F8E92]">Shop</a>
@@ -247,12 +251,18 @@ export default function DemoPage() {
               <a href="#contact" className="no-underline font-semibold text-[15px] py-0.5 border-b-2 border-transparent hover:border-[#1F8E92]">Contact</a>
             </nav>
 
-            <div className="flex gap-3 items-center relative">
+            {/* Profile, Cart, and Mobile Menu Toggle */}
+            <div className="flex gap-2.5 sm:gap-3 items-center relative">
+              {/* Profile Dropdown */}
               <div className="relative">
                 <button 
-                  onClick={() => setShowProfileMenu(!showProfileMenu)} 
-                  className="bg-transparent border-0 cursor-pointer p-1 text-[#0E3E52] flex items-center hover:opacity-80 transition-opacity"
+                  onClick={() => {
+                    setShowProfileMenu(!showProfileMenu);
+                    setMobileMenuOpen(false);
+                  }} 
+                  className="bg-transparent border-0 cursor-pointer p-1.5 text-[#0E3E52] flex items-center hover:opacity-80 transition-opacity"
                   title="Profile"
+                  aria-label="Profile"
                 >
                   <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -321,27 +331,102 @@ export default function DemoPage() {
                 )}
               </div>
 
+              {/* Cart Button */}
               <button 
-                onClick={() => navigate('/addtocart')} 
-                className="bg-transparent border-0 cursor-pointer p-1 text-[#0E3E52] flex items-center relative hover:opacity-80 transition-opacity"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate('/addtocart');
+                }} 
+                className="bg-transparent border-0 cursor-pointer p-1.5 text-[#0E3E52] flex items-center relative hover:opacity-80 transition-opacity"
                 title="Shopping Cart"
+                aria-label="Shopping Cart"
               >
                 <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {totalCartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#ED363E] text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  <span className="absolute -top-0.5 -right-1 bg-[#ED363E] text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                     {totalCartCount}
                   </span>
+                )}
+              </button>
+
+              {/* Mobile & Tablet Hamburger Button (hidden on lg+) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(!mobileMenuOpen);
+                  setShowProfileMenu(false);
+                }}
+                className="lg:hidden bg-transparent border border-[#0E3E52]/20 rounded-lg cursor-pointer p-1.5 text-[#0E3E52] flex items-center justify-center hover:bg-[#0E3E52]/5 transition-colors"
+                aria-label="Toggle Menu"
+                aria-expanded={mobileMenuOpen}
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-[22px] h-[22px]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
                 )}
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile & Tablet Dropdown Nav Drawer */}
+        {mobileMenuOpen && (
+          <nav className="lg:hidden bg-[#F3F7F7] border-t border-[#0E3E52]/15 px-5 py-3 flex flex-col gap-1 shadow-md">
+            <a
+              href="#home"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`no-underline font-semibold text-[15px] py-2 px-3 rounded-lg ${activeTab === 'home' ? 'bg-[#1F8E92]/15 text-[#1F8E92]' : 'text-[#0E3E52] hover:bg-[#0E3E52]/5'}`}
+            >
+              Home
+            </a>
+            <a
+              href="#how"
+              onClick={() => setMobileMenuOpen(false)}
+              className="no-underline font-semibold text-[15px] py-2 px-3 rounded-lg text-[#0E3E52] hover:bg-[#0E3E52]/5"
+            >
+              How it works
+            </a>
+            <a
+              href="#shop"
+              onClick={() => setMobileMenuOpen(false)}
+              className="no-underline font-semibold text-[15px] py-2 px-3 rounded-lg text-[#0E3E52] hover:bg-[#0E3E52]/5"
+            >
+              Shop
+            </a>
+            <a
+              href="#winners"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`no-underline font-semibold text-[15px] py-2 px-3 rounded-lg ${activeTab === 'winners' ? 'bg-[#1F8E92]/15 text-[#1F8E92]' : 'text-[#0E3E52] hover:bg-[#0E3E52]/5'}`}
+            >
+              Winners
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="no-underline font-semibold text-[15px] py-2 px-3 rounded-lg text-[#0E3E52] hover:bg-[#0E3E52]/5"
+            >
+              FAQ
+            </a>
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="no-underline font-semibold text-[15px] py-2 px-3 rounded-lg text-[#0E3E52] hover:bg-[#0E3E52]/5"
+            >
+              Contact
+            </a>
+          </nav>
+        )}
       </header>
 
       <main className="flex-1">
-        <section className={`py-11 pb-12 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
+        <section className={`py-6 sm:py-11 pb-12 ${activeTab === 'home' ? '' : 'hidden'}`} id="v-home">
           <div className="max-w-[1100px] mx-auto px-5">
             {/* HERO SECTION GRID (Aligned at the top with items-start) */}
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
@@ -449,7 +534,7 @@ export default function DemoPage() {
       </main>
 
       {/* CONTINUOUS INFINITE HORIZONTAL SLIDER ABOVE FOOTER */}
-       <section className="relative w-full h-[110px] md:h-[160px] overflow-hidden select-none">
+      <section className="relative w-full h-[110px] md:h-[160px] overflow-hidden select-none">
         <div
           onTransitionEnd={handleSlideTransitionEnd}
           className={`flex w-full h-full ${
@@ -478,7 +563,6 @@ export default function DemoPage() {
           ))}
         </div>
       </section>
-
       <Footer />
     </div>
   );
