@@ -546,7 +546,7 @@ export default function DemoPage() {
                     title: 'Golden Ticket Offer',
                     message: 'buy 2 product for 4 golden ticket',
                     image: '/images/luckmytrip-logo.png',
-                    badge: 'Men Offer',
+                    badge: 'Special Offer',
                     badgeClass: 'bg-amber-100 text-amber-800',
                   };
 
